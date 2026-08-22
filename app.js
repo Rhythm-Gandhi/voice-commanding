@@ -40,17 +40,20 @@ const CATEGORIES = {
   Household: { icon: "🧽", keywords: ["dish soap", "detergent", "cleaner", "tissue", "toilet paper", "paper towel", "sponge", "garbage bag", "trash bag"] },
   "Personal Care": { icon: "🧴", keywords: ["soap", "toothpaste", "shampoo", "conditioner", "body wash", "deodorant", "toothbrush", "साबुन", "टूथपेस्ट", "jabón", "jabon", "champú", "champu"] },
   "Asian Pantry": { icon: "🍜", keywords: ["soy sauce", "noodles", "ramen", "tofu", "miso", "coconut milk", "curry paste", "rice paper", "sesame oil", "nori", "kimchi", "चाउमीन", "सोया सॉस"] },
+  "Grains / Pantry": { icon: "🌾", keywords: ["bajra", "jowar", "ragi", "atta", "aata", "maida", "suji", "semolina", "poha", "besan", "makhana", "sabudana", "rice", "chawal", "chaawal", "flour", "आटा", "चावल"] },
+  "Pulses / Pantry": { icon: "🫘", keywords: ["dal", "daal", "lentil", "lentils", "rajma", "chana", "moong", "masoor", "urad", "दाल"] },
+  Spices: { icon: "🫚", keywords: ["mustard seeds", "coriander seeds", "jeera", "haldi", "dhaniya", "cumin", "turmeric"] },
   Pantry: { icon: "🥫", keywords: ["olive oil", "rice", "pasta", "flour", "sugar", "salt", "oil", "cereal", "oats", "spice", "sauce", "beans", "lentil", "dal", "चावल", "आटा", "चीनी", "नमक", "दाल", "arroz", "harina", "azúcar", "azucar", "sal", "aceite"] },
   Other: { icon: "🧺", keywords: [] }
 };
 
 // One identity per product keeps parsing, duplicates, removal, categories and history consistent.
 const PRODUCT_ALIASES = {
-  flour: { display: "Atta", category: "Pantry", aliases: ["flour", "wheat flour", "atta", "aata", "आटा"] },
+  flour: { display: "Atta", category: "Grains / Pantry", aliases: ["flour", "wheat flour", "atta", "aata", "आटा"] },
   milk: { display: "Doodh", category: "Dairy", aliases: ["milk", "doodh", "dudh", "dhoodh", "dhudh", "दूध", "leche"] },
   sugar: { display: "Chini", category: "Pantry", aliases: ["sugar", "chini", "cheeni", "चीनी", "azúcar", "azucar"] },
-  rice: { display: "Chawal", category: "Pantry", aliases: ["rice", "chawal", "chaawal", "चावल", "arroz"] },
-  lentils: { display: "Dal", category: "Pantry", aliases: ["lentil", "lentils", "dal", "daal", "दाल"] },
+  rice: { display: "Chawal", category: "Grains / Pantry", aliases: ["rice", "chawal", "chaawal", "चावल", "arroz"] },
+  lentils: { display: "Dal", category: "Pulses / Pantry", aliases: ["lentil", "lentils", "dal", "daal", "दाल"] },
   oil: { display: "Tel", category: "Pantry", aliases: ["oil", "tel", "tail", "तेल", "aceite"] },
   salt: { display: "Namak", category: "Pantry", aliases: ["salt", "namak", "नमक", "sal"] },
   eggs: { display: "Anda", category: "Dairy", aliases: ["egg", "eggs", "anda", "ande", "अंडा", "अंडे", "huevo", "huevos"] },
@@ -470,7 +473,7 @@ function splitItemPhrases(value, language) {
   return value.split(/\s*(?:,|&|\s+(?:and|aur|or|y|और)\s+)\s*/u).map((part) => part.trim()).filter(Boolean);
 }
 
-function parseItems(value, language) {
+function parseItems(value, language, allowUnknown = false) {
   const parts = splitItemPhrases(value, language);
   const sequence = parts.length === 1 ? parseKnownItemSequence(parts[0], language) : null;
   if (sequence) return sequence;
@@ -479,7 +482,7 @@ function parseItems(value, language) {
     if (!item) return null;
     const originalName = item.name;
     const resolved = resolveGroceryTerm(item.name);
-    if (!resolved) return null;
+    if (!resolved) return allowUnknown ? item : null;
     item.name = resolved.name;
     if (resolved?.corrected) {
       item.correction = { from: normalizeItemName(originalName).toLocaleLowerCase(), to: resolved.term };
@@ -694,13 +697,13 @@ function parseCommand(value, recognitionLanguage = "en-US") {
   for (const pattern of removePatterns[language]) {
     const match = text.match(pattern);
     if (!match) continue;
-    const parsedItems = parseItems(match[1], language);
+    const parsedItems = parseItems(match[1], language, true);
     return parsedItems ? commandResult("remove", language, parsedItems) : { ok: false, error: "I couldn't identify which item to remove." };
   }
 
   const hinglishRemove = text.match(/^(?:list\s+se\s+)?(.+?)\s+(?:hata\s+do|hatao|remove\s+karo|list\s+se\s+hata\s+do|delete\s+kar\s+do|nahi\s+chahiye)$/u);
   if (hinglishRemove) {
-    const parsedItems = parseItems(hinglishRemove[1], language);
+    const parsedItems = parseItems(hinglishRemove[1], language, true);
     return parsedItems ? commandResult("remove", language, parsedItems) : { ok: false, error: "I couldn't identify which item to remove." };
   }
 
@@ -715,18 +718,20 @@ function parseCommand(value, recognitionLanguage = "en-US") {
     let body = match[1];
     if (language === "en") body = body.replace(/\s+(?:to|on)\s+(?:my\s+)?list$/u, "");
     if (language === "es") body = body.replace(/\s+a\s+mi\s+lista$/u, "");
-    const parsedItems = parseItems(body, language);
+    const parsedItems = parseItems(body, language, true);
     return parsedItems ? commandResult("add", language, parsedItems) : { ok: false, error: "I heard an add command, but couldn't identify valid items." };
   }
 
   const hinglishAdd = text.match(/^(?:(?:mujhe|muje|list\s+m(?:e|ein))\s+)?(.+?)\s+(?:add|ad|add\s+karo|add\s+kar\s+do|list\s+m(?:e|ein)\s+(?:daal|dal|daalo|dalo)(?:\s+do)?|(?:daal|dal|daalo|dalo)(?:\s+do)?|chahiye|chaiye|le\s+(?:aao|lena)|lena|kharidna\s+hai|kharidni\s+hai)$/u);
   if (hinglishAdd) {
-    const parsedItems = parseItems(hinglishAdd[1], language);
+    const parsedItems = parseItems(hinglishAdd[1], language, true);
     return parsedItems ? commandResult("add", language, parsedItems) : { ok: false, error: "I heard an add command, but couldn't identify valid items." };
   }
 
   const implicitItems = parseItems(text, language);
   if (implicitItems) return commandResult("add", language, implicitItems);
+  const structuredItems = parseItems(text, language, true);
+  if (structuredItems?.items.some(({ quantity, unit }) => quantity !== 1 || unit !== "item")) return commandResult("add", language, structuredItems);
 
   return { ok: false, error: "I didn't understand that yet. Try “Add milk”, “Remove bread”, or “Set apples to 3”." };
 }

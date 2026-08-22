@@ -52,6 +52,9 @@ mujhe atta dhoodh chini chahiye
 2 kilo atta
 dhoodh 2 packet
 chini hata do
+Add one kilo bajra
+500 gram ragi
+2 packet poha
 I want to buy bananas
 Add 2 bottles of water
 Remove milk from my list

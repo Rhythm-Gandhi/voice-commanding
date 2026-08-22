@@ -133,6 +133,28 @@ test("parses Hinglish quantities before or after an item", () => {
   assert.deepEqual(plain(parseCommand("aloo 5", "en-IN")).items, [{ name: "Aloo", quantity: 5, unit: "item" }]);
 });
 
+test("parses arbitrary Indian grocery names with quantities and units", () => {
+  const cases = [
+    ["one kilo bajra", { name: "Bajra", quantity: 1, unit: "kg" }],
+    ["2 kilo atta", { name: "Atta", quantity: 2, unit: "kg" }],
+    ["500 gram ragi", { name: "Ragi", quantity: 500, unit: "g" }],
+    ["1 kg jowar", { name: "Jowar", quantity: 1, unit: "kg" }],
+    ["2 packet poha", { name: "Poha", quantity: 2, unit: "pack" }],
+    ["1 kilo besan", { name: "Besan", quantity: 1, unit: "kg" }],
+    ["bajra 1 kilo", { name: "Bajra", quantity: 1, unit: "kg" }],
+    ["Add 750 gram quinoa", { name: "Quinoa", quantity: 750, unit: "g" }]
+  ];
+  for (const [command, expected] of cases) assert.deepEqual(plain(parseCommand(command, "en-IN")).items, [expected]);
+  assert.deepEqual(plain(parseCommand("Add quinoa", "en-IN")).items, [{ name: "Quinoa", quantity: 1, unit: "item" }]);
+});
+
+test("categorizes Indian staples while preserving Other for unmatched groceries", () => {
+  for (const name of ["Bajra", "Jowar", "Ragi", "Atta", "Maida", "Suji", "Poha", "Besan"]) assert.equal(categorizeItem(name), "Grains / Pantry");
+  for (const name of ["Dal", "Rajma", "Chana", "Moong", "Masoor", "Urad"]) assert.equal(categorizeItem(name), "Pulses / Pantry");
+  for (const name of ["Jeera", "Haldi", "Dhaniya", "Mustard seeds"]) assert.equal(categorizeItem(name), "Spices");
+  assert.equal(categorizeItem("Quinoa"), "Other");
+});
+
 test("uses canonical alias identity for duplicates and list matching", () => {
   assert.equal(itemKey("Milk"), itemKey("dhoodh"));
   assert.equal(itemKey("aata"), itemKey("Atta"));

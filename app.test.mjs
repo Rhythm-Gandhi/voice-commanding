@@ -5,8 +5,8 @@ import vm from "node:vm";
 
 const context = vm.createContext({ Intl });
 const source = readFileSync(new URL("./app.js", import.meta.url), "utf8");
-vm.runInContext(`${source}\nglobalThis.testApi = { CATALOG, buildRecommendations, categorizeItem, createDemoHistory, createEmptyStore, getSubstitutes, normalizeItemName, parseCatalogSearch, parseCommand, parseQuantity, productListItem, searchCatalog, validHistoryEvent, validateItemName };`, context);
-const { CATALOG, buildRecommendations, categorizeItem, createDemoHistory, createEmptyStore, getSubstitutes, normalizeItemName, parseCatalogSearch, parseCommand, parseQuantity, productListItem, searchCatalog, validHistoryEvent, validateItemName } = context.testApi;
+vm.runInContext(`${source}\nglobalThis.testApi = { CATALOG, buildRecommendations, categorizeItem, createDemoHistory, createEmptyStore, getSubstitutes, normalizeItemName, parseCatalogSearch, parseCommand, parseQuantity, productListItem, searchCatalog, speechLanguage, validHistoryEvent, validateItemName };`, context);
+const { CATALOG, buildRecommendations, categorizeItem, createDemoHistory, createEmptyStore, getSubstitutes, normalizeItemName, parseCatalogSearch, parseCommand, parseQuantity, productListItem, searchCatalog, speechLanguage, validHistoryEvent, validateItemName } = context.testApi;
 const plain = (value) => JSON.parse(JSON.stringify(value));
 const DAY_MS = 86_400_000;
 
@@ -57,12 +57,21 @@ test("understands varied English add phrases and units", () => {
   assert.deepEqual(plain(parseCommand("Add do milk", "en-IN")).items, [
     { name: "Milk", quantity: 2, unit: "pack" }
   ]);
+  assert.deepEqual(plain(parseCommand("Do bottle water.", "en-IN")).items, [
+    { name: "Water", quantity: 2, unit: "bottle" }
+  ]);
   assert.deepEqual(plain(parseCommand("Add dos milk", "en-IN")).items, [
     { name: "Milk", quantity: 2, unit: "pack" }
   ]);
   assert.deepEqual(plain(parseCommand("Add do apples", "en-IN")).items, [
     { name: "Apples", quantity: 2, unit: "item" }
   ]);
+});
+
+test("uses a widely supported English voice for Hinglish confirmations", () => {
+  assert.equal(speechLanguage("en-IN"), "en-US");
+  assert.equal(speechLanguage("hi-IN"), "hi-IN");
+  assert.equal(speechLanguage("es-ES"), "es-ES");
 });
 
 test("parses multiple English items in one command", () => {

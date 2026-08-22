@@ -238,6 +238,10 @@ function languageKey(language) {
   return "en";
 }
 
+function speechLanguage(language) {
+  return languageKey(language) === "en" ? "en-US" : language;
+}
+
 function escapeRegex(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
@@ -551,6 +555,11 @@ function parseCommand(value, recognitionLanguage = "en-US") {
     return items ? commandResult("add", language, { items }) : { ok: false, error: "I heard an add command, but couldn't identify valid items." };
   }
 
+  const implicitItems = parseItems(text, language);
+  if (implicitItems?.some(({ quantity, unit }) => quantity !== 1 || unit !== "item")) {
+    return commandResult("add", language, { items: implicitItems });
+  }
+
   return { ok: false, error: "I didn't understand that yet. Try “Add milk”, “Remove bread”, or “Set apples to 3”." };
 }
 
@@ -719,8 +728,9 @@ function init() {
   function speak(message) {
     if (!("speechSynthesis" in window) || !nodes.spokenFeedback.checked) return;
     window.speechSynthesis.cancel();
+    window.speechSynthesis.resume();
     const utterance = new SpeechSynthesisUtterance(message);
-    utterance.lang = nodes.language.value;
+    utterance.lang = speechLanguage(nodes.language.value);
     utterance.rate = 1;
     utterance.volume = 0.85;
     window.speechSynthesis.speak(utterance);

@@ -5,8 +5,8 @@ import vm from "node:vm";
 
 const context = vm.createContext({ Intl });
 const source = readFileSync(new URL("./app.js", import.meta.url), "utf8");
-vm.runInContext(`${source}\nglobalThis.testApi = { CATALOG, buildRecommendations, categorizeItem, createDemoHistory, createEmptyStore, dedupeItems, getSubstitutes, itemKey, normalizeItemName, parseCatalogSearch, parseCommand, parseQuantity, productListItem, searchCatalog, shoppingListText, speechLanguage, validHistoryEvent, validateItemName };`, context);
-const { CATALOG, buildRecommendations, categorizeItem, createDemoHistory, createEmptyStore, dedupeItems, getSubstitutes, itemKey, normalizeItemName, parseCatalogSearch, parseCommand, parseQuantity, productListItem, searchCatalog, shoppingListText, speechLanguage, validHistoryEvent, validateItemName } = context.testApi;
+vm.runInContext(`${source}\nglobalThis.testApi = { CATALOG, buildRecommendations, categorizeItem, createDemoHistory, createEmptyStore, dedupeItems, findAmbiguousItem, getSubstitutes, itemKey, normalizeItemName, parseCatalogSearch, parseCommand, parseQuantity, productListItem, searchCatalog, shoppingListText, speechLanguage, validHistoryEvent, validateItemName };`, context);
+const { CATALOG, buildRecommendations, categorizeItem, createDemoHistory, createEmptyStore, dedupeItems, findAmbiguousItem, getSubstitutes, itemKey, normalizeItemName, parseCatalogSearch, parseCommand, parseQuantity, productListItem, searchCatalog, shoppingListText, speechLanguage, validHistoryEvent, validateItemName } = context.testApi;
 const plain = (value) => JSON.parse(JSON.stringify(value));
 const DAY_MS = 86_400_000;
 
@@ -166,6 +166,37 @@ test("uses canonical alias identity for duplicates and list matching", () => {
   assert.equal(items[0].name, "Milk");
   assert.equal(items[0].quantity, 3);
   assert.equal(categorizeItem("dhoodh"), "Dairy");
+});
+
+test("normalizes high-confidence Makki flour aliases into one canonical item", () => {
+  const commands = ["add 1 kilo makki", "add 1 kilo makki ka atta", "add 1 kilo makki atta", "add 1 kilo corn flour", "add 1 kilo maize flour"];
+  const parsed = commands.map((command) => plain(parseCommand(command, "en-IN")).items[0]);
+  assert.equal(parsed.every(({ name, unit }) => name === "Makki ka Atta" && unit === "kg"), true);
+  assert.equal(parsed.every(({ name }) => categorizeItem(name) === "Grains / Pantry"), true);
+  const merged = plain(dedupeItems(parsed.map((item, index) => ({ ...item, completed: false, updatedAt: `2026-01-0${index + 1}T00:00:00.000Z` }))));
+  assert.equal(merged.length, 1);
+  assert.equal(merged[0].name, "Makki ka Atta");
+  assert.equal(merged[0].quantity, 5);
+});
+
+test("shares canonical identities for established synonyms", () => {
+  assert.equal(new Set(["atta", "aata", "wheat flour"].map(itemKey)).size, 1);
+  assert.equal(new Set(["doodh", "dhoodh", "milk"].map(itemKey)).size, 1);
+  assert.equal(new Set(["chini", "cheeni", "sugar"].map(itemKey)).size, 1);
+});
+
+test("flags related corn products for clarification without over-merging", () => {
+  const existing = [{ id: "flour", name: "Makki ka Atta", completed: false }];
+  assert.equal(findAmbiguousItem("Corn", existing)?.id, "flour");
+  assert.equal(findAmbiguousItem("Sweet corn", existing)?.id, "flour");
+  assert.equal(findAmbiguousItem("Cornmeal", existing), null);
+  assert.notEqual(itemKey("Corn"), itemKey("Makki ka Atta"));
+});
+
+test("uses canonical aliases when searching a catalog", () => {
+  const catalog = [{ name: "Makki ka Atta", brand: "Local Mill", category: "Grains / Pantry", attributes: [], price: 80, salePrice: null, available: true }];
+  assert.equal(searchCatalog({ query: "maize flour" }, catalog).length, 1);
+  assert.equal(searchCatalog({ query: "makki" }, catalog).length, 1);
 });
 
 test("keeps multiword groceries whole and flags partially unknown speech", () => {

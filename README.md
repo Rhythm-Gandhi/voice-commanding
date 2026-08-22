@@ -55,6 +55,7 @@ chini hata do
 Add one kilo bajra
 500 gram ragi
 2 packet poha
+Add one kilo makki ka atta
 I want to buy bananas
 Add 2 bottles of water
 Remove milk from my list

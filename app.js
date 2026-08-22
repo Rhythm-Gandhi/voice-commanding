@@ -30,7 +30,7 @@ const CATALOG = [
 ];
 
 const CATEGORIES = {
-  Produce: { icon: "🥬", keywords: ["apple", "banana", "orange", "grape", "lemon", "lime", "mango", "berry", "berries", "tomato", "potato", "onion", "garlic", "carrot", "spinach", "lettuce", "broccoli", "cucumber", "avocado", "fruit", "vegetable", "coriander", "cilantro", "सेब", "केला", "केले", "संतरा", "आलू", "प्याज", "पालक", "manzana", "manzanas", "plátano", "plátanos", "naranja", "naranjas", "patata", "cebolla", "espinaca"] },
+  Produce: { icon: "🥬", keywords: ["sweet corn", "corn", "apple", "banana", "orange", "grape", "lemon", "lime", "mango", "berry", "berries", "tomato", "potato", "onion", "garlic", "carrot", "spinach", "lettuce", "broccoli", "cucumber", "avocado", "fruit", "vegetable", "coriander", "cilantro", "सेब", "केला", "केले", "संतरा", "आलू", "प्याज", "पालक", "manzana", "manzanas", "plátano", "plátanos", "naranja", "naranjas", "patata", "cebolla", "espinaca"] },
   Dairy: { icon: "🥛", keywords: ["milk", "cheese", "yogurt", "yoghurt", "butter", "cream", "paneer", "egg", "दूध", "पनीर", "अंडा", "अंडे", "leche", "queso", "huevo", "huevos"] },
   Bakery: { icon: "🥖", keywords: ["brown bread", "bread", "bun", "bagel", "croissant", "cake", "muffin", "tortilla", "ब्रेड", "रोटी", "pan"] },
   Snacks: { icon: "🍿", keywords: ["chips", "crisps", "cookie", "cookies", "biscuit", "chocolate", "candy", "popcorn", "nuts", "चिप्स", "बिस्कुट", "galleta", "galletas"] },
@@ -40,7 +40,7 @@ const CATEGORIES = {
   Household: { icon: "🧽", keywords: ["dish soap", "detergent", "cleaner", "tissue", "toilet paper", "paper towel", "sponge", "garbage bag", "trash bag"] },
   "Personal Care": { icon: "🧴", keywords: ["soap", "toothpaste", "shampoo", "conditioner", "body wash", "deodorant", "toothbrush", "साबुन", "टूथपेस्ट", "jabón", "jabon", "champú", "champu"] },
   "Asian Pantry": { icon: "🍜", keywords: ["soy sauce", "noodles", "ramen", "tofu", "miso", "coconut milk", "curry paste", "rice paper", "sesame oil", "nori", "kimchi", "चाउमीन", "सोया सॉस"] },
-  "Grains / Pantry": { icon: "🌾", keywords: ["bajra", "jowar", "ragi", "atta", "aata", "maida", "suji", "semolina", "poha", "besan", "makhana", "sabudana", "rice", "chawal", "chaawal", "flour", "आटा", "चावल"] },
+  "Grains / Pantry": { icon: "🌾", keywords: ["makki ka atta", "makki atta", "corn flour", "maize flour", "makki", "bajra", "jowar", "ragi", "atta", "aata", "maida", "suji", "semolina", "poha", "besan", "makhana", "sabudana", "rice", "chawal", "chaawal", "flour", "आटा", "चावल"] },
   "Pulses / Pantry": { icon: "🫘", keywords: ["dal", "daal", "lentil", "lentils", "rajma", "chana", "moong", "masoor", "urad", "दाल"] },
   Spices: { icon: "🫚", keywords: ["mustard seeds", "coriander seeds", "jeera", "haldi", "dhaniya", "cumin", "turmeric"] },
   Pantry: { icon: "🥫", keywords: ["olive oil", "rice", "pasta", "flour", "sugar", "salt", "oil", "cereal", "oats", "spice", "sauce", "beans", "lentil", "dal", "चावल", "आटा", "चीनी", "नमक", "दाल", "arroz", "harina", "azúcar", "azucar", "sal", "aceite"] },
@@ -50,6 +50,7 @@ const CATEGORIES = {
 // One identity per product keeps parsing, duplicates, removal, categories and history consistent.
 const PRODUCT_ALIASES = {
   flour: { display: "Atta", category: "Grains / Pantry", aliases: ["flour", "wheat flour", "atta", "aata", "आटा"] },
+  "corn-flour": { display: "Makki ka Atta", category: "Grains / Pantry", aliases: ["makki", "makki ka atta", "makki atta", "corn flour", "maize flour"] },
   milk: { display: "Doodh", category: "Dairy", aliases: ["milk", "doodh", "dudh", "dhoodh", "dhudh", "दूध", "leche"] },
   sugar: { display: "Chini", category: "Pantry", aliases: ["sugar", "chini", "cheeni", "चीनी", "azúcar", "azucar"] },
   rice: { display: "Chawal", category: "Grains / Pantry", aliases: ["rice", "chawal", "chaawal", "चावल", "arroz"] },
@@ -67,7 +68,8 @@ const PRODUCT_ALIASES = {
   yogurt: { display: "Dahi", category: "Dairy", aliases: ["yogurt", "yoghurt", "dahi", "दही"] }
 };
 const ALIAS_TO_PRODUCT = new Map(Object.entries(PRODUCT_ALIASES).flatMap(([key, product]) => product.aliases.map((alias) => [normalizeItemName(alias).toLocaleLowerCase(), { key, ...product }])));
-const ROMANIZED_DISPLAY_ALIASES = new Set(["atta", "aata", "doodh", "dudh", "dhoodh", "dhudh", "chini", "cheeni", "chawal", "chaawal", "dal", "daal", "tel", "tail", "namak", "anda", "ande", "aloo", "aalu", "alu", "pyaaz", "pyaz", "tamatar", "tamater", "sabun", "saabun", "makhan", "dahi"]);
+const ROMANIZED_DISPLAY_ALIASES = new Set(["atta", "aata", "doodh", "dudh", "dhoodh", "dhudh", "chini", "cheeni", "chawal", "chaawal", "dal", "daal", "tel", "tail", "namak", "anda", "ande", "aloo", "aalu", "alu", "pyaaz", "pyaz", "tamatar", "tamater", "sabun", "saabun", "makhan", "dahi", "makki", "makki ka atta", "makki atta", "corn flour", "maize flour"]);
+const AMBIGUOUS_PRODUCT_PAIRS = [["corn", "corn-flour"], ["sweet corn", "corn-flour"]];
 
 const GROCERY_TERMS = [...new Set([
   ...Object.values(CATEGORIES).flatMap(({ keywords }) => keywords),
@@ -147,7 +149,8 @@ function createEmptyStore() {
 
 function dedupeItems(items) {
   const deduped = [];
-  for (const item of items) {
+  for (const original of items) {
+    const item = { ...original, name: friendlyItemName(original.name) };
     const existing = deduped.find((candidate) => !candidate.completed && !item.completed && itemKey(candidate.name) === itemKey(item.name));
     if (existing && existing.quantity + item.quantity <= MAX_QUANTITY) {
       existing.quantity = Math.round((existing.quantity + item.quantity) * 100) / 100;
@@ -162,6 +165,13 @@ function dedupeItems(items) {
 function itemKey(value) {
   const key = normalizeItemName(value).toLocaleLowerCase();
   return ALIAS_TO_PRODUCT.get(key)?.key ?? key;
+}
+
+function findAmbiguousItem(name, items, excludedId = "") {
+  const key = itemKey(name);
+  const related = new Set(AMBIGUOUS_PRODUCT_PAIRS.filter((pair) => pair.includes(key)).flat());
+  if (!related.size) return null;
+  return items.find((item) => item.id !== excludedId && !item.completed && itemKey(item.name) !== key && related.has(itemKey(item.name))) ?? null;
 }
 
 function friendlyItemName(value) {
@@ -609,7 +619,8 @@ function searchCatalog(filters, catalog = CATALOG) {
   const queryWords = normalizeCommand(filters.query ?? "").split(/\s+/u).filter(Boolean);
   return catalog.filter((product) => {
     const price = catalogPrice(product);
-    const haystack = itemKey([product.name, product.brand, product.category, ...product.attributes].join(" "));
+    const aliases = PRODUCT_ALIASES[itemKey(product.name)]?.aliases ?? [];
+    const haystack = normalizeCommand([product.name, product.brand, product.category, ...product.attributes, ...aliases].join(" "));
     return (!filters.brand || itemKey(product.brand) === itemKey(filters.brand))
       && (!filters.category || product.category === filters.category)
       && (filters.minPrice === undefined || price >= filters.minPrice)
@@ -962,6 +973,7 @@ function init() {
   }
 
   function addListItem({ name, quantity, unit, category }) {
+    name = friendlyItemName(name);
     const existing = store.list.items.find((item) => !item.completed && itemKey(item.name) === itemKey(name));
     if (existing && existing.quantity + quantity <= MAX_QUANTITY) {
       existing.quantity = Math.round((existing.quantity + quantity) * 100) / 100;
@@ -989,8 +1001,14 @@ function init() {
   function executeParsedCommand(parsed) {
     if (parsed.intent === "add") {
       const duplicates = [];
-      const items = parsed.items.map((incoming) => {
-        const existing = store.list.items.find((item) => !item.completed && itemKey(item.name) === itemKey(incoming.name));
+      const items = parsed.items.map((original) => {
+        const incoming = { ...original };
+        let existing = store.list.items.find((item) => !item.completed && itemKey(item.name) === itemKey(incoming.name));
+        const ambiguous = existing ? null : findAmbiguousItem(incoming.name, store.list.items);
+        if (ambiguous && window.confirm(`You already have “${ambiguous.name}” in your list.\n\nDid you mean the same item?\n\nSelect OK to update it, or Cancel to add ${incoming.name} separately.`)) {
+          incoming.name = ambiguous.name;
+          existing = ambiguous;
+        }
         if (existing) duplicates.push(existing.name);
         return addListItem(incoming);
       });
@@ -1502,13 +1520,23 @@ function init() {
       showFeedback("That item is no longer on your list.", "error");
       return;
     }
-    item.name = valid.name;
-    item.quantity = valid.quantity;
-    item.unit = UNITS.has(nodes.editUnit.value) ? nodes.editUnit.value : "item";
-    item.category = categorizeItem(valid.name);
-    item.updatedAt = new Date().toISOString();
+    let name = friendlyItemName(valid.name);
+    const ambiguous = findAmbiguousItem(name, store.list.items, item.id);
+    if (ambiguous && window.confirm(`You already have “${ambiguous.name}” in your list.\n\nDid you mean the same item?\n\nSelect OK to update it, or Cancel to keep ${name} separate.`)) name = ambiguous.name;
+    const duplicate = store.list.items.find((candidate) => candidate.id !== item.id && !candidate.completed && itemKey(candidate.name) === itemKey(name));
+    if (duplicate && duplicate.quantity + valid.quantity <= MAX_QUANTITY) {
+      duplicate.quantity = Math.round((duplicate.quantity + valid.quantity) * 100) / 100;
+      duplicate.updatedAt = new Date().toISOString();
+      store.list.items = store.list.items.filter(({ id }) => id !== item.id);
+    } else {
+      item.name = name;
+      item.quantity = valid.quantity;
+      item.unit = UNITS.has(nodes.editUnit.value) ? nodes.editUnit.value : "item";
+      item.category = categorizeItem(name);
+      item.updatedAt = new Date().toISOString();
+    }
     nodes.editDialog.close();
-    commit(`Updated ${item.name}.`);
+    commit(`Updated ${name}.`);
   });
 
   nodes.closeDialog.addEventListener("click", () => nodes.editDialog.close());

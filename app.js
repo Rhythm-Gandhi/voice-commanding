@@ -59,6 +59,9 @@ const NUMBER_WORDS = {
   es: { un: 1, una: 1, uno: 1, dos: 2, tres: 3, cuatro: 4, cinco: 5, seis: 6, siete: 7, ocho: 8, nueve: 9, diez: 10, once: 11, doce: 12, trece: 13, catorce: 14, quince: 15, dieciséis: 16, dieciseis: 16, diecisiete: 17, dieciocho: 18, diecinueve: 19, veinte: 20 }
 };
 
+const HINGLISH_NUMBER_WORDS = { ek: 1, do: 2, teen: 3, char: 4, chaar: 4, panch: 5, paanch: 5, chhe: 6, che: 6, saat: 7, aath: 8, nau: 9, das: 10, gyarah: 11, barah: 12, terah: 13, chaudah: 14, pandrah: 15, solah: 16, satrah: 17, atharah: 18, unnis: 19, bees: 20 };
+const IMPLIED_PACK_ITEMS = new Set(["milk", "doodh", "dudh", "दूध", "leche"]);
+
 const UNIT_WORDS = {
   en: { item: ["item", "items"], pack: ["pack", "packs"], bottle: ["bottle", "bottles"], box: ["box", "boxes"], dozen: ["dozen"], kg: ["kg", "kilogram", "kilograms", "kilo", "kilos"], g: ["g", "gram", "grams"], L: ["l", "litre", "litres", "liter", "liters"], mL: ["ml", "millilitre", "millilitres", "milliliter", "milliliters"] },
   hi: { item: ["वस्तु", "आइटम"], pack: ["पैक", "पैकेट"], bottle: ["बोतल", "बोतलें"], box: ["डिब्बा", "डिब्बे"], dozen: ["दर्जन"], kg: ["किलो", "किलोग्राम"], g: ["ग्राम"], L: ["लीटर"], mL: ["मिलीलीटर"] },
@@ -251,7 +254,8 @@ function normalizeCommand(value) {
 
 function replaceNumberWords(value, language) {
   let text = value;
-  for (const [word, number] of Object.entries(NUMBER_WORDS[language])) {
+  const numberWords = { ...NUMBER_WORDS.en, ...NUMBER_WORDS.hi, ...NUMBER_WORDS.es, ...HINGLISH_NUMBER_WORDS, ...NUMBER_WORDS[language] };
+  for (const [word, number] of Object.entries(numberWords)) {
     text = text.replace(new RegExp(`(^|[\\s,])${escapeRegex(word)}(?=$|[\\s,])`, "gu"), `$1${number}`);
   }
   return text;
@@ -303,6 +307,7 @@ function parseItemPhrase(value, language) {
 
   name = cleanItemName(name, language);
   if (quantity === null || validateItemName(name)) return null;
+  if (unit === "item" && quantity > 1 && IMPLIED_PACK_ITEMS.has(itemKey(name))) unit = "pack";
   return { name: capitalize(name), quantity, unit };
 }
 
@@ -1355,7 +1360,7 @@ function init() {
     store = createEmptyStore();
     searchState = null;
     localStorage.removeItem(STORAGE_KEY);
-    nodes.language.value = "en-US";
+    nodes.language.value = "en-IN";
     nodes.spokenFeedback.checked = true;
     nodes.commandInput.placeholder = "Try “Add 2 bottles of milk”";
     render();
@@ -1397,7 +1402,7 @@ function init() {
     store.preferences.language = nodes.language.value;
     saveStore();
     nodes.commandInput.placeholder = ({
-      "en-US": "Try “Add 2 bottles of milk”",
+      "en-IN": "Try “Add do milk”",
       "hi-IN": "कोशिश करें “दो बोतल दूध जोड़ो”",
       "es-ES": "Prueba “Añade dos botellas de leche”"
     })[nodes.language.value];
@@ -1409,7 +1414,8 @@ function init() {
   });
 
   store = loadStore();
-  nodes.language.value = ["en-US", "hi-IN", "es-ES"].includes(store.preferences.language) ? store.preferences.language : "en-US";
+  const savedLanguage = store.preferences.language === "en-US" ? "en-IN" : store.preferences.language;
+  nodes.language.value = ["en-IN", "hi-IN", "es-ES"].includes(savedLanguage) ? savedLanguage : "en-IN";
   nodes.spokenFeedback.checked = store.preferences.spokenFeedback !== false;
   nodes.spokenFeedback.disabled = !("speechSynthesis" in window);
   nodes.micButton.disabled = !SpeechRecognition;

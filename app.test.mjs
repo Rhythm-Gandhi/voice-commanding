@@ -54,6 +54,15 @@ test("understands varied English add phrases and units", () => {
   assert.deepEqual(plain(parseCommand("Get me two bottles of water", "en-US")).items, [
     { name: "Water", quantity: 2, unit: "bottle" }
   ]);
+  assert.deepEqual(plain(parseCommand("Add do milk", "en-IN")).items, [
+    { name: "Milk", quantity: 2, unit: "pack" }
+  ]);
+  assert.deepEqual(plain(parseCommand("Add dos milk", "en-IN")).items, [
+    { name: "Milk", quantity: 2, unit: "pack" }
+  ]);
+  assert.deepEqual(plain(parseCommand("Add do apples", "en-IN")).items, [
+    { name: "Apples", quantity: 2, unit: "item" }
+  ]);
 });
 
 test("parses multiple English items in one command", () => {
@@ -86,6 +95,9 @@ test("parses Hindi add, multiple items, remove, and quantity commands", () => {
   assert.equal(parseCommand("अंडे, ब्रेड और केले जोड़ो", "hi-IN").items.length, 3);
   assert.equal(parseCommand("दूध हटाओ", "hi-IN").intent, "remove");
   assert.deepEqual(plain(parseCommand("दूध की मात्रा तीन करो", "hi-IN")).item, { name: "दूध", quantity: 3, unit: null });
+  assert.deepEqual(plain(parseCommand("two पैकेट दूध जोड़ो", "hi-IN")).items, [
+    { name: "दूध", quantity: 2, unit: "pack" }
+  ]);
 });
 
 test("parses Spanish add, multiple items, remove, and quantity commands", () => {
@@ -95,6 +107,9 @@ test("parses Spanish add, multiple items, remove, and quantity commands", () => 
   assert.equal(parseCommand("Necesito huevos, pan y plátanos", "es-ES").items.length, 3);
   assert.equal(parseCommand("Quita leche de mi lista", "es-ES").intent, "remove");
   assert.deepEqual(plain(parseCommand("Cambia la cantidad de leche a tres botellas", "es-ES")).item, { name: "Leche", quantity: 3, unit: "bottle" });
+  assert.deepEqual(plain(parseCommand("Añade do leche", "es-ES")).items, [
+    { name: "Leche", quantity: 2, unit: "pack" }
+  ]);
 });
 
 test("frequent items remain regulars but a just-purchased item is not predicted", () => {

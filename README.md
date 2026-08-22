@@ -9,7 +9,7 @@ Piko is a cheerful, mobile-first shopping list manager with multilingual voice c
 ## Features
 
 - Native voice recognition and typed fallback through one command pipeline
-- English, Hindi, and Spanish add, remove, quantity, search, substitute, and suggestion commands
+- English/Hinglish, Hindi, and Spanish add, remove, quantity, search, substitute, and suggestion commands
 - Categorized shopping list with editing, completion, quantities, persistence, and clear/reset controls
 - Explainable regular, likely-needed, seasonal, demonstration-deal, and substitute recommendations
 - Optional, clearly labelled demo history for immediate evaluation
@@ -34,12 +34,13 @@ Open <http://localhost:8000>. No installation or environment variables are requi
 
 ## Voice requirements and languages
 
-Use a current Chrome or Edge release over HTTPS or localhost, allow microphone access, choose English, हिन्दी, or Español, and tap the microphone. Browser speech-recognition availability varies; typed commands always remain available. Depending on the browser, recognition may use a provider-managed remote service.
+Use a current Chrome or Edge release over HTTPS or localhost, allow microphone access, choose English / Hinglish, हिन्दी, or Español, and tap the microphone. The deterministic parser accepts number words from the supported languages even when they are mixed, such as `Add do milk`, `Add dos milk`, or `Añade two paquetes de leche`. Browser speech-recognition availability varies; typed commands always remain available. Depending on the browser, recognition may use a provider-managed remote service.
 
 Example commands:
 
 ```text
 Add milk and bread
+Add do milk
 I want to buy bananas
 Add 2 bottles of water
 Remove milk from my list

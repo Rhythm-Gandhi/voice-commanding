@@ -5,16 +5,28 @@ const MAX_QUANTITY = 999;
 const DAY_MS = 86_400_000;
 
 const CATALOG = [
-  { name: "Milk", category: "Dairy", price: 3.49, salePrice: null, seasonalMonths: [], available: false, substitutes: ["Oat milk", "Almond milk", "Soy milk"] },
-  { name: "Bread", category: "Bakery", price: 2.79, salePrice: 2.29, seasonalMonths: [], available: true, substitutes: ["Whole wheat bread", "Tortillas"] },
-  { name: "Eggs", category: "Dairy", price: 3.99, salePrice: 3.49, seasonalMonths: [], available: true, substitutes: ["Tofu", "Egg substitute"] },
-  { name: "Mangoes", category: "Produce", price: 4.49, salePrice: 3.49, seasonalMonths: [3, 4, 5, 6, 7], available: true, substitutes: ["Peaches", "Pineapple"] },
-  { name: "Watermelon", category: "Produce", price: 5.99, salePrice: null, seasonalMonths: [4, 5, 6, 7, 8], available: true, substitutes: ["Muskmelon"] },
-  { name: "Oranges", category: "Produce", price: 4.29, salePrice: 3.59, seasonalMonths: [11, 0, 1, 2], available: true, substitutes: ["Mandarins"] },
-  { name: "Hot chocolate", category: "Beverages", price: 4.99, salePrice: 3.99, seasonalMonths: [10, 11, 0, 1], available: true, substitutes: ["Cocoa powder"] },
-  { name: "Oat milk", category: "Dairy", price: 4.29, salePrice: 3.79, seasonalMonths: [], available: true, substitutes: ["Almond milk", "Soy milk"] },
-  { name: "Almond milk", category: "Dairy", price: 4.19, salePrice: null, seasonalMonths: [], available: true, substitutes: ["Oat milk", "Soy milk"] },
-  { name: "Soy milk", category: "Dairy", price: 3.99, salePrice: null, seasonalMonths: [], available: true, substitutes: ["Oat milk", "Almond milk"] }
+  { id: "milk-whole", name: "Milk", category: "Dairy", brand: "Farm Fresh", price: 3.49, salePrice: null, size: "1 L", sizeClass: "large", attributes: ["whole"], seasonalMonths: [], available: false, substitutes: ["Oat milk", "Almond milk", "Soy milk"] },
+  { id: "milk-oat", name: "Oat milk", category: "Dairy", brand: "Oatly", price: 4.29, salePrice: 3.79, size: "1 L", sizeClass: "large", attributes: ["vegan", "dairy-free"], seasonalMonths: [], available: true, substitutes: ["Almond milk", "Soy milk"] },
+  { id: "milk-almond", name: "Almond milk", category: "Dairy", brand: "NutriLife", price: 4.19, salePrice: null, size: "1 L", sizeClass: "large", attributes: ["vegan", "dairy-free"], seasonalMonths: [], available: true, substitutes: ["Oat milk", "Soy milk"] },
+  { id: "milk-soy", name: "Soy milk", category: "Dairy", brand: "SoyGood", price: 3.99, salePrice: null, size: "1 L", sizeClass: "large", attributes: ["vegan", "dairy-free"], seasonalMonths: [], available: true, substitutes: ["Oat milk", "Almond milk"] },
+  { id: "bread-whole", name: "Bread", category: "Bakery", brand: "Daily Bake", price: 2.79, salePrice: 2.29, size: "500 g", sizeClass: "medium", attributes: ["whole wheat"], seasonalMonths: [], available: true, substitutes: ["Whole wheat bread", "Tortillas"] },
+  { id: "bread-organic", name: "Whole wheat bread", category: "Bakery", brand: "Earth Loaf", price: 4.49, salePrice: null, size: "450 g", sizeClass: "medium", attributes: ["organic", "whole wheat"], seasonalMonths: [], available: true, substitutes: ["Bread", "Tortillas"] },
+  { id: "tortillas", name: "Tortillas", category: "Bakery", brand: "Casa Sol", price: 3.29, salePrice: null, size: "8 pack", sizeClass: "medium", attributes: ["vegetarian"], seasonalMonths: [], available: true, substitutes: ["Bread"] },
+  { id: "eggs", name: "Eggs", category: "Dairy", brand: "Happy Hen", price: 3.99, salePrice: 3.49, size: "12 pack", sizeClass: "medium", attributes: ["free-range"], seasonalMonths: [], available: true, substitutes: ["Tofu", "Egg substitute"] },
+  { id: "apples-organic", name: "Organic Gala Apples", category: "Produce", brand: "Green Orchard", price: 5.49, salePrice: 4.99, size: "1 kg", sizeClass: "medium", attributes: ["organic", "fruit"], seasonalMonths: [7, 8, 9, 10], available: true, substitutes: ["Apples", "Oranges"] },
+  { id: "apples", name: "Apples", category: "Produce", brand: "Fresh Fields", price: 3.49, salePrice: null, size: "1 kg", sizeClass: "medium", attributes: ["fruit"], seasonalMonths: [7, 8, 9, 10], available: true, substitutes: ["Organic Gala Apples", "Oranges"] },
+  { id: "bananas-organic", name: "Organic Bananas", category: "Produce", brand: "Nature Crop", price: 2.99, salePrice: null, size: "6 pack", sizeClass: "medium", attributes: ["organic", "fruit"], seasonalMonths: [], available: true, substitutes: ["Apples"] },
+  { id: "mangoes", name: "Mangoes", category: "Produce", brand: "Sun Farm", price: 4.49, salePrice: 3.49, size: "4 pack", sizeClass: "medium", attributes: ["fruit"], seasonalMonths: [3, 4, 5, 6, 7], available: true, substitutes: ["Peaches", "Pineapple"] },
+  { id: "watermelon", name: "Watermelon", category: "Produce", brand: "Fresh Fields", price: 5.99, salePrice: null, size: "Large", sizeClass: "large", attributes: ["fruit"], seasonalMonths: [4, 5, 6, 7, 8], available: true, substitutes: ["Muskmelon"] },
+  { id: "oranges", name: "Oranges", category: "Produce", brand: "Citrus Grove", price: 4.29, salePrice: 3.59, size: "1 kg", sizeClass: "medium", attributes: ["fruit"], seasonalMonths: [11, 0, 1, 2], available: true, substitutes: ["Mandarins"] },
+  { id: "water-large", name: "Spring Water", category: "Beverages", brand: "AquaPure", price: 1.49, salePrice: 1.19, size: "1.5 L", sizeClass: "large", attributes: ["still"], seasonalMonths: [], available: true, substitutes: ["Mineral Water"] },
+  { id: "water-small", name: "Mineral Water", category: "Beverages", brand: "Evian", price: 3.29, salePrice: null, size: "750 mL", sizeClass: "small", attributes: ["mineral", "still"], seasonalMonths: [], available: true, substitutes: ["Spring Water"] },
+  { id: "hot-chocolate", name: "Hot chocolate", category: "Beverages", brand: "Cocoa House", price: 4.99, salePrice: 3.99, size: "250 g", sizeClass: "small", attributes: ["vegetarian"], seasonalMonths: [10, 11, 0, 1], available: true, substitutes: ["Cocoa powder"] },
+  { id: "toothpaste-colgate", name: "Colgate Total Toothpaste", category: "Household", brand: "Colgate", price: 4.49, salePrice: 3.99, size: "150 g", sizeClass: "medium", attributes: ["fluoride"], seasonalMonths: [], available: true, substitutes: ["Pepsodent Complete Toothpaste"] },
+  { id: "toothpaste-pepsodent", name: "Pepsodent Complete Toothpaste", category: "Household", brand: "Pepsodent", price: 3.49, salePrice: null, size: "150 g", sizeClass: "medium", attributes: ["fluoride"], seasonalMonths: [], available: true, substitutes: ["Colgate Total Toothpaste"] },
+  { id: "toothpaste-sensodyne", name: "Sensodyne Repair Toothpaste", category: "Household", brand: "Sensodyne", price: 6.49, salePrice: 5.99, size: "100 g", sizeClass: "small", attributes: ["sensitive"], seasonalMonths: [], available: true, substitutes: ["Colgate Total Toothpaste"] },
+  { id: "dove-bar", name: "Dove Beauty Bar", category: "Household", brand: "Dove", price: 4.75, salePrice: null, size: "4 pack", sizeClass: "medium", attributes: ["moisturizing"], seasonalMonths: [], available: true, substitutes: ["Gentle Soap"] },
+  { id: "dove-shampoo", name: "Dove Daily Shine Shampoo", category: "Household", brand: "Dove", price: 7.99, salePrice: 6.99, size: "400 mL", sizeClass: "large", attributes: ["moisturizing"], seasonalMonths: [], available: true, substitutes: [] }
 ];
 
 const CATEGORIES = {
@@ -23,7 +35,7 @@ const CATEGORIES = {
   Bakery: { icon: "🥖", keywords: ["bread", "bun", "bagel", "croissant", "cake", "muffin", "tortilla", "ब्रेड", "रोटी", "pan"] },
   Snacks: { icon: "🍿", keywords: ["chips", "crisps", "cookie", "cookies", "biscuit", "chocolate", "candy", "popcorn", "nuts", "चिप्स", "बिस्कुट", "galleta", "galletas"] },
   Beverages: { icon: "🧃", keywords: ["water", "juice", "soda", "coffee", "tea", "cola", "drink", "पानी", "जूस", "चाय", "agua", "jugo", "café", "cafe"] },
-  Household: { icon: "🧽", keywords: ["soap", "detergent", "cleaner", "tissue", "toilet paper", "paper towel", "sponge", "garbage bag", "trash bag"] },
+  Household: { icon: "🧽", keywords: ["soap", "toothpaste", "shampoo", "detergent", "cleaner", "tissue", "toilet paper", "paper towel", "sponge", "garbage bag", "trash bag"] },
   Pantry: { icon: "🥫", keywords: ["rice", "pasta", "flour", "sugar", "salt", "oil", "cereal", "oats", "spice", "sauce", "beans", "lentil", "dal", "चावल", "आटा", "चीनी", "नमक", "दाल", "arroz", "harina", "azúcar", "azucar", "sal", "aceite"] },
   Other: { icon: "🧺", keywords: [] }
 };
@@ -318,6 +330,131 @@ function commandResult(intent, language, details = {}) {
   return { ok: true, intent, language, ...details };
 }
 
+function catalogPrice(product) {
+  return product.salePrice ?? product.price;
+}
+
+function parseCatalogSearch(value, language = "en", catalog = CATALOG) {
+  let text = normalizeCommand(value);
+  const filters = {};
+  const pricePatterns = {
+    en: {
+      maxPrice: /\b(?:under|below|less than|up to)\s*\$?\s*(\d+(?:[.,]\d+)?)\s*(?:dollars?)?\b/u,
+      minPrice: /\b(?:over|above|more than|at least)\s*\$?\s*(\d+(?:[.,]\d+)?)\s*(?:dollars?)?\b/u
+    },
+    hi: {
+      maxPrice: /(?:₹|\$)?\s*(\d+(?:[.,]\d+)?)\s*(?:रुपये|डॉलर)?\s*से\s*(?:कम|नीचे)/u,
+      minPrice: /(?:₹|\$)?\s*(\d+(?:[.,]\d+)?)\s*(?:रुपये|डॉलर)?\s*से\s*(?:ज्यादा|अधिक|ऊपर)/u
+    },
+    es: {
+      maxPrice: /\b(?:por debajo de|menos de|hasta)\s*\$?\s*(\d+(?:[.,]\d+)?)\s*(?:dólares|dolares)?\b/u,
+      minPrice: /\b(?:por encima de|más de|mas de|al menos)\s*\$?\s*(\d+(?:[.,]\d+)?)\s*(?:dólares|dolares)?\b/u
+    }
+  };
+  for (const [key, pattern] of Object.entries(pricePatterns[language])) {
+    const match = text.match(pattern);
+    if (match) {
+      filters[key] = Number(match[1].replace(",", "."));
+      text = text.replace(match[0], " ");
+    }
+  }
+
+  const brand = [...new Set(catalog.map(({ brand }) => brand))]
+    .sort((a, b) => b.length - a.length)
+    .find((name) => new RegExp(`(^|\\s)${escapeRegex(itemKey(name))}(?=$|\\s)`, "u").test(text));
+  if (brand) {
+    filters.brand = brand;
+    text = text.replace(new RegExp(`(^|\\s)${escapeRegex(itemKey(brand))}(?=$|\\s)`, "u"), " ");
+  }
+
+  const attributeAliases = {
+    organic: ["organic", "orgánico", "organico", "जैविक"],
+    vegan: ["vegan", "vegano", "शाकाहारी"],
+    "dairy-free": ["dairy-free", "sin lácteos", "sin lacteos", "डेयरी मुक्त"],
+    sensitive: ["sensitive", "sensible", "संवेदनशील"]
+  };
+  for (const [attribute, aliases] of Object.entries(attributeAliases)) {
+    const alias = aliases.find((candidate) => text.includes(candidate));
+    if (alias) {
+      filters.attributes = [...(filters.attributes ?? []), attribute];
+      text = text.replace(alias, " ");
+    }
+  }
+
+  const sizeAliases = {
+    large: ["large", "big", "grande", "gran", "बड़ी", "बड़ा"],
+    medium: ["medium", "mediano", "mediana", "मध्यम"],
+    small: ["small", "pequeño", "pequeña", "छोटी", "छोटा"]
+  };
+  for (const [size, aliases] of Object.entries(sizeAliases)) {
+    const alias = aliases.find((candidate) => text.includes(candidate));
+    if (alias) {
+      filters.size = size;
+      text = text.replace(alias, " ");
+      break;
+    }
+  }
+
+  const availabilityWords = ["available", "in stock", "disponible", "उपलब्ध"];
+  const availability = availabilityWords.find((word) => text.includes(word));
+  if (availability) {
+    filters.availableOnly = true;
+    text = text.replace(availability, " ");
+  }
+
+  const categoryAliases = {
+    Produce: ["fruit", "fruits", "produce", "fruta", "frutas", "फल"],
+    Dairy: ["dairy", "lácteos", "lacteos", "डेयरी"],
+    Bakery: ["bakery", "panadería", "panaderia", "बेकरी"],
+    Beverages: ["beverage", "beverages", "drinks", "bebida", "bebidas", "पेय"],
+    Household: ["household", "personal care", "hogar", "घरेलू"]
+  };
+  for (const [category, aliases] of Object.entries(categoryAliases)) {
+    const alias = aliases.find((candidate) => new RegExp(`(^|\\s)${escapeRegex(candidate)}(?=$|\\s)`, "u").test(text));
+    if (alias) {
+      filters.category = category;
+      text = text.replace(new RegExp(`(^|\\s)${escapeRegex(alias)}(?=$|\\s)`, "u"), " ");
+      break;
+    }
+  }
+
+  const queryAliases = {
+    hi: { दूध: "milk", पानी: "water", सेब: "apples", टूथपेस्ट: "toothpaste", साबुन: "soap" },
+    es: { leche: "milk", agua: "water", manzana: "apples", manzanas: "apples", "pasta de dientes": "toothpaste", jabón: "soap", jabon: "soap" }
+  };
+  for (const [word, replacement] of Object.entries(queryAliases[language] ?? {})) {
+    text = text.replace(word, replacement);
+  }
+
+  text = text
+    .replace(/\b(?:me|some|the|products?|items?|bottles?|of|please|por favor|productos?|botellas?|de|मुझे|कुछ|उत्पाद|बोतलें?|की|के|का)\b/gu, " ")
+    .replace(/[$₹€]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  if (text) filters.query = text;
+  return filters;
+}
+
+function searchCatalog(filters, catalog = CATALOG) {
+  const queryWords = normalizeCommand(filters.query ?? "").split(/\s+/u).filter(Boolean);
+  return catalog.filter((product) => {
+    const price = catalogPrice(product);
+    const haystack = itemKey([product.name, product.brand, product.category, ...product.attributes].join(" "));
+    return (!filters.brand || itemKey(product.brand) === itemKey(filters.brand))
+      && (!filters.category || product.category === filters.category)
+      && (filters.minPrice === undefined || price >= filters.minPrice)
+      && (filters.maxPrice === undefined || price <= filters.maxPrice)
+      && (!filters.size || product.sizeClass === filters.size)
+      && (!filters.attributes || filters.attributes.every((attribute) => product.attributes.includes(attribute)))
+      && (!filters.availableOnly || product.available)
+      && queryWords.every((word) => haystack.includes(word));
+  }).sort((a, b) => Number(b.available) - Number(a.available) || catalogPrice(a) - catalogPrice(b));
+}
+
+function productListItem(product) {
+  return { name: product.name, quantity: 1, unit: "item", category: product.category };
+}
+
 function parseCommand(value, recognitionLanguage = "en-US") {
   const language = languageKey(recognitionLanguage);
   const text = normalizeCommand(value);
@@ -347,13 +484,13 @@ function parseCommand(value, recognitionLanguage = "en-US") {
   if (suggestionPatterns[language].test(text)) return commandResult("suggestion", language);
 
   const searchPatterns = {
-    en: [/^(?:search(?: for)?|find(?: me)?|look for)\s+(.+)$/u],
-    hi: [/^(?:खोजो|ढूँढो|ढूंढो)\s+(.+)$/u, /^(.+)\s+(?:खोजो|ढूँढो|ढूंढो)$/u],
-    es: [/^(?:busca|encuentra)\s+(.+)$/u]
+    en: [/^(?:search(?: for)?|find(?: me)?|look for|show(?: me)?)\s+(.+)$/u],
+    hi: [/^(?:खोजो|ढूँढो|ढूंढो|दिखाओ)\s+(.+)$/u, /^(.+)\s+(?:खोजो|ढूँढो|ढूंढो|दिखाओ)$/u],
+    es: [/^(?:busca|encuentra|muestra(?:me)?)\s+(.+)$/u]
   };
   for (const pattern of searchPatterns[language]) {
     const match = text.match(pattern);
-    if (match) return commandResult("search", language, { query: capitalize(cleanItemName(match[1], language)) });
+    if (match) return commandResult("search", language, { query: capitalize(cleanItemName(match[1], language)), filters: parseCatalogSearch(match[1], language) });
   }
 
   const updatePatterns = {
@@ -468,6 +605,10 @@ function init() {
     emptyAdd: document.querySelector("#empty-add-button"),
     summary: document.querySelector("#list-summary"),
     clearCompleted: document.querySelector("#clear-completed"),
+    productSearch: document.querySelector("#product-search"),
+    searchSummary: document.querySelector("#search-summary"),
+    searchResults: document.querySelector("#search-results"),
+    closeSearch: document.querySelector("#close-search"),
     recommendations: document.querySelector("#recommendations"),
     historySummary: document.querySelector("#history-summary"),
     demoNote: document.querySelector("#demo-note"),
@@ -501,6 +642,7 @@ function init() {
   let commandHandled = false;
   let recognitionFailed = false;
   let userCancelled = false;
+  let searchState = null;
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
   function showFeedback(message, tone = "success") {
@@ -628,7 +770,7 @@ function init() {
     if (event) store.history = [...store.history, event].slice(-500);
   }
 
-  function addListItem({ name, quantity, unit }) {
+  function addListItem({ name, quantity, unit, category }) {
     const existing = store.list.items.find((item) => !item.completed && item.unit === unit && itemKey(item.name) === itemKey(name));
     if (existing && existing.quantity + quantity <= MAX_QUANTITY) {
       existing.quantity = Math.round((existing.quantity + quantity) * 100) / 100;
@@ -643,7 +785,7 @@ function init() {
       name,
       quantity,
       unit,
-      category: categorizeItem(name),
+      category: category ?? categorizeItem(name),
       completed: false,
       createdAt: now,
       updatedAt: now
@@ -702,7 +844,13 @@ function init() {
     }
 
     if (parsed.intent === "search") {
-      return { ok: true, placeholder: true, message: `I heard your search for ${parsed.query}. Product search arrives in Phase 4.` };
+      const results = searchCatalog(parsed.filters);
+      searchState = { query: parsed.query, filters: parsed.filters, results };
+      renderSearch();
+      nodes.productSearch.scrollIntoView({ behavior: "smooth", block: "start" });
+      if (!results.length) return { ok: true, message: "I couldn't find a matching demo product. Try changing the brand or price range." };
+      const pricePhrase = parsed.filters.maxPrice !== undefined ? ` under $${formatNumber(parsed.filters.maxPrice)}` : "";
+      return { ok: true, message: `I found ${results.length} product${results.length === 1 ? "" : "s"}${pricePhrase}.` };
     }
 
     if (parsed.intent === "substitute") {
@@ -825,6 +973,77 @@ function init() {
       setVoiceState("error", message);
       showFeedback(message, "error");
     }
+  }
+
+  function makeProductCard(product) {
+    const card = element("article", `product-card${product.available ? "" : " is-unavailable"}`);
+    card.dataset.productId = product.id;
+    const topline = element("div", "product-topline");
+    topline.append(
+      element("span", "product-brand", product.brand),
+      element("span", `availability-pill${product.available ? "" : " unavailable"}`, product.available ? "Available" : "Unavailable")
+    );
+    card.append(topline, element("h3", "", product.name));
+
+    const priceRow = element("div", "product-price-row");
+    const price = element("p", "product-price");
+    if (product.salePrice) price.append(element("s", "", `$${product.price.toFixed(2)}`));
+    price.append(document.createTextNode(`$${catalogPrice(product).toFixed(2)}`));
+    priceRow.append(price);
+    if (product.salePrice) priceRow.append(element("span", "sale-pill", "Demo sale"));
+    card.append(priceRow, element("p", "product-size", `${product.size} • ${product.category}`));
+
+    const tags = element("div", "product-tags");
+    tags.append(...product.attributes.map((attribute) => element("span", "product-tag", attribute)));
+    card.append(tags);
+
+    if (!product.available) {
+      const substitutes = getSubstitutes(product.name).filter(({ id, available }) => id && available);
+      const box = element("div", "substitute-box");
+      box.append(element("strong", "", substitutes.length ? "You could try:" : "No curated substitute is available."));
+      if (substitutes.length) {
+        const links = element("div", "substitute-links");
+        for (const substitute of substitutes) {
+          const button = element("button", "text-button", `＋ ${substitute.name}`);
+          button.type = "button";
+          button.dataset.action = "add-product";
+          button.dataset.productId = substitute.id;
+          links.append(button);
+        }
+        box.append(links);
+      }
+      card.append(box);
+    }
+
+    const actions = element("div", "product-actions");
+    const add = element("button", "secondary-button", product.available ? "＋ Add to list" : "Unavailable");
+    add.type = "button";
+    add.dataset.action = "add-product";
+    add.dataset.productId = product.id;
+    add.disabled = !product.available;
+    actions.append(add);
+    card.append(actions);
+    return card;
+  }
+
+  function renderSearch() {
+    nodes.productSearch.hidden = !searchState;
+    if (!searchState) return;
+    const { query, results } = searchState;
+    nodes.searchSummary.textContent = results.length
+      ? `${results.length} demonstration product${results.length === 1 ? "" : "s"} for “${query}”.`
+      : `No demonstration products matched “${query}”.`;
+    if (results.length) {
+      nodes.searchResults.replaceChildren(...results.map(makeProductCard));
+      return;
+    }
+    const empty = element("div", "search-empty");
+    empty.append(
+      element("span", "", "🔎"),
+      element("h3", "", "Hmm, I couldn't find that."),
+      element("p", "", "Try changing the brand, price range, size, or product description.")
+    );
+    nodes.searchResults.replaceChildren(empty);
   }
 
   function makeItemCard(item) {
@@ -1092,6 +1311,20 @@ function init() {
     commit(`Dismissed ${name}.`);
   });
 
+  nodes.searchResults.addEventListener("click", (event) => {
+    const button = event.target.closest('button[data-action="add-product"]');
+    if (!button) return;
+    const product = CATALOG.find(({ id }) => id === button.dataset.productId);
+    if (!product?.available) return;
+    const item = addListItem(productListItem(product));
+    commit(`Added ${item.name} from the demonstration catalog.`);
+  });
+
+  nodes.closeSearch.addEventListener("click", () => {
+    searchState = null;
+    renderSearch();
+  });
+
   nodes.loadDemoHistory.addEventListener("click", () => {
     store.history = store.history.filter(({ demo }) => !demo).concat(createDemoHistory());
     store.preferences.demoHistory = true;
@@ -1120,11 +1353,13 @@ function init() {
   nodes.resetAllData.addEventListener("click", () => {
     if (!window.confirm("Reset the shopping list, history, preferences, and demo data? This cannot be undone.")) return;
     store = createEmptyStore();
+    searchState = null;
     localStorage.removeItem(STORAGE_KEY);
     nodes.language.value = "en-US";
     nodes.spokenFeedback.checked = true;
     nodes.commandInput.placeholder = "Try “Add 2 bottles of milk”";
     render();
+    renderSearch();
     showFeedback("All local Piko data was reset.");
   });
   nodes.name.addEventListener("input", () => {

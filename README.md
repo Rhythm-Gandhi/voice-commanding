@@ -1,6 +1,6 @@
 # Piko - Voice Command Shopping Assistant
 
-Piko is a cheerful, mobile-first shopping companion built for a software engineering assessment. Phase 3 adds transparent, local recommendation logic with no runtime dependencies or build step.
+Piko is a cheerful, mobile-first shopping companion built for a software engineering assessment. Phase 4 adds voice-activated local catalog search with no runtime dependencies or build step.
 
 ## Currently implemented
 
@@ -19,12 +19,14 @@ Piko is a cheerful, mobile-first shopping companion built for a software enginee
 - Transparent reasons, direct add and dismiss controls, and active-list exclusion
 - Explicit optional demo history plus separate list, history, and full-data reset controls
 - Multilingual voice and typed suggestion requests
+- Structured product search by name, category, brand, price range, size, attributes, and availability
+- A varied local demonstration catalog with polished result, unavailable-product, substitute, sale, and no-result states
+- Direct add from product results through the existing list, history, categorization, and recommendation pipeline
 - Optional native spoken confirmation for successful voice actions
 - Microphone permission, timeout, no-speech, network, cancellation, and unsupported-browser handling
 
 ## Planned
 
-- Phase 4: voice product search with brand, size, and price filters
 - Phase 5: final hardening, documentation, and deployment
 
 ## Run locally
@@ -52,7 +54,25 @@ Añade dos botellas de leche
 Cambia la cantidad de leche a tres botellas
 ```
 
-Suggestion examples include `What should I buy?`, `What do I usually buy?`, `What might I need?`, `मुझे क्या चाहिए`, and `¿Qué suelo comprar?`. Voice recognition availability and supported languages depend on the browser. Typed commands always use the same parser and remain available as a fallback. Search requests remain an honest Phase 4 placeholder.
+Suggestion examples include `What should I buy?`, `What do I usually buy?`, `What might I need?`, `मुझे क्या चाहिए`, and `¿Qué suelo comprar?`. Voice recognition availability and supported languages depend on the browser. Typed commands always use the same parser and remain available as a fallback.
+
+## Product search
+
+Product search extracts structured filters and combines them against the local demonstration catalog. Search results themselves are temporary; only products explicitly added to the list enter local list and history storage.
+
+```text
+Find organic apples
+Find toothpaste under 5 dollars
+Show me Dove products
+Find large bottles of water
+Show milk under $4
+Find organic fruit under $6
+Show me Colgate toothpaste
+दूध दिखाओ
+Busca leche por debajo de $4
+```
+
+Displayed prices, sales, availability, brands, sizes, seasonal details, and substitutes are curated demonstration data rather than live retailer information.
 
 ## How predictions work
 

@@ -5,8 +5,8 @@ import vm from "node:vm";
 
 const context = vm.createContext({ Intl });
 const source = readFileSync(new URL("./app.js", import.meta.url), "utf8");
-vm.runInContext(`${source}\nglobalThis.testApi = { buildRecommendations, categorizeItem, createDemoHistory, createEmptyStore, getSubstitutes, normalizeItemName, parseCommand, parseQuantity, validHistoryEvent, validateItemName };`, context);
-const { buildRecommendations, categorizeItem, createDemoHistory, createEmptyStore, getSubstitutes, normalizeItemName, parseCommand, parseQuantity, validHistoryEvent, validateItemName } = context.testApi;
+vm.runInContext(`${source}\nglobalThis.testApi = { CATALOG, buildRecommendations, categorizeItem, createDemoHistory, createEmptyStore, getSubstitutes, normalizeItemName, parseCatalogSearch, parseCommand, parseQuantity, productListItem, searchCatalog, validHistoryEvent, validateItemName };`, context);
+const { CATALOG, buildRecommendations, categorizeItem, createDemoHistory, createEmptyStore, getSubstitutes, normalizeItemName, parseCatalogSearch, parseCommand, parseQuantity, productListItem, searchCatalog, validHistoryEvent, validateItemName } = context.testApi;
 const plain = (value) => JSON.parse(JSON.stringify(value));
 const DAY_MS = 86_400_000;
 
@@ -150,4 +150,40 @@ test("understands broader suggestion requests in all supported languages", () =>
   assert.deepEqual(plain(parseCommand("Suggest an alternative to milk", "en-US")), { ok: true, intent: "substitute", language: "en", query: "Milk" });
   assert.equal(parseCommand("दूध का विकल्प क्या है", "hi-IN").intent, "substitute");
   assert.equal(parseCommand("Alternativa a leche", "es-ES").intent, "substitute");
+});
+
+test("extracts product, brand, price, size, attribute, and category filters", () => {
+  assert.deepEqual(plain(parseCatalogSearch("Colgate toothpaste under $5", "en")), { maxPrice: 5, brand: "Colgate", query: "toothpaste" });
+  assert.deepEqual(plain(parseCatalogSearch("organic fruit under $6", "en")), { maxPrice: 6, attributes: ["organic"], category: "Produce" });
+  assert.deepEqual(plain(parseCatalogSearch("large bottles of water", "en")), { size: "large", query: "water" });
+  assert.deepEqual(plain(parseCatalogSearch("toothpaste over $4", "en")), { minPrice: 4, query: "toothpaste" });
+});
+
+test("filters catalog products using combined structured entities", () => {
+  const parsed = parseCommand("Find Colgate toothpaste under $5", "en-US");
+  assert.equal(parsed.intent, "search");
+  assert.deepEqual(plain(searchCatalog(parsed.filters)).map(({ id }) => id), ["toothpaste-colgate"]);
+  assert.equal(searchCatalog(parseCatalogSearch("organic fruit under $6", "en")).every((product) => product.category === "Produce" && product.attributes.includes("organic") && (product.salePrice ?? product.price) <= 6), true);
+  assert.deepEqual(plain(searchCatalog(parseCommand("Show me Dove products", "en-US").filters)).map(({ brand }) => brand), ["Dove", "Dove"]);
+});
+
+test("supports minimum price, no results, and multilingual core search terms", () => {
+  assert.equal(searchCatalog(parseCatalogSearch("toothpaste over $6", "en")).every((product) => (product.salePrice ?? product.price) >= 6), true);
+  assert.deepEqual(plain(searchCatalog(parseCatalogSearch("Colgate toothpaste under $2", "en"))), []);
+  assert.equal(searchCatalog(parseCommand("दूध दिखाओ", "hi-IN").filters).some(({ name }) => name === "Milk"), true);
+  assert.equal(searchCatalog(parseCommand("Busca leche por debajo de $4", "es-ES").filters).some(({ name }) => name === "Milk"), true);
+});
+
+test("returns unavailable products with substitutes", () => {
+  const milk = searchCatalog(parseCatalogSearch("milk under $4", "en")).find(({ name }) => name === "Milk");
+  assert.equal(milk.available, false);
+  assert.deepEqual(plain(getSubstitutes(milk.name)).map(({ name }) => name), ["Oat milk", "Almond milk", "Soy milk"]);
+});
+
+test("maps a search result into the existing list and history payload", () => {
+  const product = CATALOG.find(({ id }) => id === "toothpaste-colgate");
+  assert.deepEqual(plain(productListItem(product)), { name: "Colgate Total Toothpaste", quantity: 1, unit: "item", category: "Household" });
+  const event = validHistoryEvent({ ...productListItem(product), type: "added", at: "2026-08-22T12:00:00Z" });
+  assert.equal(event.name, "Colgate Total Toothpaste");
+  assert.equal(event.category, "Household");
 });

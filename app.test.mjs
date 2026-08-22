@@ -5,8 +5,8 @@ import vm from "node:vm";
 
 const context = vm.createContext({ Intl });
 const source = readFileSync(new URL("./app.js", import.meta.url), "utf8");
-vm.runInContext(`${source}\nglobalThis.testApi = { CATALOG, buildRecommendations, categorizeItem, createDemoHistory, createEmptyStore, dedupeItems, getSubstitutes, normalizeItemName, parseCatalogSearch, parseCommand, parseQuantity, productListItem, searchCatalog, shoppingListText, speechLanguage, validHistoryEvent, validateItemName };`, context);
-const { CATALOG, buildRecommendations, categorizeItem, createDemoHistory, createEmptyStore, dedupeItems, getSubstitutes, normalizeItemName, parseCatalogSearch, parseCommand, parseQuantity, productListItem, searchCatalog, shoppingListText, speechLanguage, validHistoryEvent, validateItemName } = context.testApi;
+vm.runInContext(`${source}\nglobalThis.testApi = { CATALOG, buildRecommendations, categorizeItem, createDemoHistory, createEmptyStore, dedupeItems, getSubstitutes, itemKey, normalizeItemName, parseCatalogSearch, parseCommand, parseQuantity, productListItem, searchCatalog, shoppingListText, speechLanguage, validHistoryEvent, validateItemName };`, context);
+const { CATALOG, buildRecommendations, categorizeItem, createDemoHistory, createEmptyStore, dedupeItems, getSubstitutes, itemKey, normalizeItemName, parseCatalogSearch, parseCommand, parseQuantity, productListItem, searchCatalog, shoppingListText, speechLanguage, validHistoryEvent, validateItemName } = context.testApi;
 const plain = (value) => JSON.parse(JSON.stringify(value));
 const DAY_MS = 86_400_000;
 
@@ -109,6 +109,49 @@ test("filters speech fillers and separates natural space-delimited groceries", (
   ]);
   assert.deepEqual(plain(parseCommand("उम्म प्याज पालक दूध जोड़ो", "hi-IN")).items.map(({ name }) => name), ["प्याज", "पालक", "दूध"]);
   assert.deepEqual(plain(parseCommand("eh añade cebolla espinaca leche por favor", "es-ES")).items.map(({ name }) => name), ["Cebolla", "Espinaca", "Leche"]);
+});
+
+test("parses Romanized Hindi aliases, implicit adds, connectors, and speech-style suffixes", () => {
+  assert.equal(parseCommand("atta", "en-IN").items[0].name, "Atta");
+  assert.equal(parseCommand("chini", "en-IN").items[0].name, "Chini");
+  assert.deepEqual(plain(parseCommand("atta doodh chini ad", "en-IN")).items.map(({ name }) => name), ["Atta", "Doodh", "Chini"]);
+  assert.deepEqual(plain(parseCommand("atta doodh chini", "en-IN")).items.map(({ name }) => name), ["Atta", "Doodh", "Chini"]);
+  assert.deepEqual(plain(parseCommand("atta aur doodh and chini", "en-IN")).items.map(({ name }) => name), ["Atta", "Doodh", "Chini"]);
+  assert.deepEqual(plain(parseCommand("dhoodh", "en-IN")).items, [{ name: "Doodh", quantity: 1, unit: "item" }]);
+  assert.deepEqual(plain(parseCommand("list me atta doodh daal do", "en-IN")).items.map(({ name }) => name), ["Atta", "Doodh"]);
+  assert.deepEqual(plain(parseCommand("mujhe atta doodh chini chahiye", "en-IN")).items.map(({ name }) => name), ["Atta", "Doodh", "Chini"]);
+  assert.equal(parseCommand("atta list mein daalo", "en-IN").items[0].name, "Atta");
+  assert.equal(parseCommand("doodh le lena", "en-IN").items[0].name, "Doodh");
+  assert.equal(parseCommand("atta doodh hata do", "en-IN").intent, "remove");
+  assert.equal(parseCommand("chini hata do", "en-IN").items[0].name, "Chini");
+});
+
+test("parses Hinglish quantities before or after an item", () => {
+  assert.deepEqual(plain(parseCommand("add 2 kilo atta", "en-IN")).items, [{ name: "Atta", quantity: 2, unit: "kg" }]);
+  assert.deepEqual(plain(parseCommand("atta 2 kilo", "en-IN")).items, [{ name: "Atta", quantity: 2, unit: "kg" }]);
+  assert.deepEqual(plain(parseCommand("2 packet dhoodh", "en-IN")).items, [{ name: "Doodh", quantity: 2, unit: "pack" }]);
+  assert.deepEqual(plain(parseCommand("aloo 5", "en-IN")).items, [{ name: "Aloo", quantity: 5, unit: "item" }]);
+});
+
+test("uses canonical alias identity for duplicates and list matching", () => {
+  assert.equal(itemKey("Milk"), itemKey("dhoodh"));
+  assert.equal(itemKey("aata"), itemKey("Atta"));
+  const items = plain(dedupeItems([
+    { name: "Milk", quantity: 1, unit: "pack", completed: false, updatedAt: "2026-01-01T00:00:00.000Z" },
+    { name: "Doodh", quantity: 2, unit: "pack", completed: false, updatedAt: "2026-01-02T00:00:00.000Z" }
+  ]));
+  assert.equal(items.length, 1);
+  assert.equal(items[0].name, "Milk");
+  assert.equal(items[0].quantity, 3);
+  assert.equal(categorizeItem("dhoodh"), "Dairy");
+});
+
+test("keeps multiword groceries whole and flags partially unknown speech", () => {
+  assert.deepEqual(plain(parseCommand("almond milk coconut water olive oil brown bread toilet paper", "en-IN")).items.map(({ name }) => name), ["Almond milk", "Coconut water", "Olive oil", "Brown bread", "Toilet paper"]);
+  const partial = plain(parseCommand("atta xyz chini", "en-IN"));
+  assert.deepEqual(partial.items.map(({ name }) => name), ["Atta", "Chini"]);
+  assert.deepEqual(partial.unknown, ["xyz"]);
+  assert.equal(parseCommand("xyz qwerty", "en-IN").ok, false);
 });
 
 test("suggests deterministic grocery spelling corrections", () => {

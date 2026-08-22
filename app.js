@@ -32,20 +32,43 @@ const CATALOG = [
 const CATEGORIES = {
   Produce: { icon: "🥬", keywords: ["apple", "banana", "orange", "grape", "lemon", "lime", "mango", "berry", "berries", "tomato", "potato", "onion", "garlic", "carrot", "spinach", "lettuce", "broccoli", "cucumber", "avocado", "fruit", "vegetable", "coriander", "cilantro", "सेब", "केला", "केले", "संतरा", "आलू", "प्याज", "पालक", "manzana", "manzanas", "plátano", "plátanos", "naranja", "naranjas", "patata", "cebolla", "espinaca"] },
   Dairy: { icon: "🥛", keywords: ["milk", "cheese", "yogurt", "yoghurt", "butter", "cream", "paneer", "egg", "दूध", "पनीर", "अंडा", "अंडे", "leche", "queso", "huevo", "huevos"] },
-  Bakery: { icon: "🥖", keywords: ["bread", "bun", "bagel", "croissant", "cake", "muffin", "tortilla", "ब्रेड", "रोटी", "pan"] },
+  Bakery: { icon: "🥖", keywords: ["brown bread", "bread", "bun", "bagel", "croissant", "cake", "muffin", "tortilla", "ब्रेड", "रोटी", "pan"] },
   Snacks: { icon: "🍿", keywords: ["chips", "crisps", "cookie", "cookies", "biscuit", "chocolate", "candy", "popcorn", "nuts", "चिप्स", "बिस्कुट", "galleta", "galletas"] },
-  Beverages: { icon: "🧃", keywords: ["water", "juice", "soda", "coffee", "tea", "cola", "drink", "पानी", "जूस", "चाय", "agua", "jugo", "café", "cafe"] },
+  Beverages: { icon: "🧃", keywords: ["coconut water", "water", "juice", "soda", "coffee", "tea", "cola", "drink", "पानी", "जूस", "चाय", "agua", "jugo", "café", "cafe"] },
   Frozen: { icon: "🧊", keywords: ["frozen peas", "frozen corn", "frozen vegetables", "ice cream", "frozen pizza", "फ्रोजन मटर", "helado"] },
   "Meat & Seafood": { icon: "🐟", keywords: ["chicken", "mutton", "beef", "pork", "fish", "salmon", "prawn", "prawns", "shrimp", "tuna", "चिकन", "मछली", "pollo", "pescado"] },
   Household: { icon: "🧽", keywords: ["dish soap", "detergent", "cleaner", "tissue", "toilet paper", "paper towel", "sponge", "garbage bag", "trash bag"] },
   "Personal Care": { icon: "🧴", keywords: ["soap", "toothpaste", "shampoo", "conditioner", "body wash", "deodorant", "toothbrush", "साबुन", "टूथपेस्ट", "jabón", "jabon", "champú", "champu"] },
   "Asian Pantry": { icon: "🍜", keywords: ["soy sauce", "noodles", "ramen", "tofu", "miso", "coconut milk", "curry paste", "rice paper", "sesame oil", "nori", "kimchi", "चाउमीन", "सोया सॉस"] },
-  Pantry: { icon: "🥫", keywords: ["rice", "pasta", "flour", "sugar", "salt", "oil", "cereal", "oats", "spice", "sauce", "beans", "lentil", "dal", "चावल", "आटा", "चीनी", "नमक", "दाल", "arroz", "harina", "azúcar", "azucar", "sal", "aceite"] },
+  Pantry: { icon: "🥫", keywords: ["olive oil", "rice", "pasta", "flour", "sugar", "salt", "oil", "cereal", "oats", "spice", "sauce", "beans", "lentil", "dal", "चावल", "आटा", "चीनी", "नमक", "दाल", "arroz", "harina", "azúcar", "azucar", "sal", "aceite"] },
   Other: { icon: "🧺", keywords: [] }
 };
 
+// One identity per product keeps parsing, duplicates, removal, categories and history consistent.
+const PRODUCT_ALIASES = {
+  flour: { display: "Atta", category: "Pantry", aliases: ["flour", "wheat flour", "atta", "aata", "आटा"] },
+  milk: { display: "Doodh", category: "Dairy", aliases: ["milk", "doodh", "dudh", "dhoodh", "dhudh", "दूध", "leche"] },
+  sugar: { display: "Chini", category: "Pantry", aliases: ["sugar", "chini", "cheeni", "चीनी", "azúcar", "azucar"] },
+  rice: { display: "Chawal", category: "Pantry", aliases: ["rice", "chawal", "chaawal", "चावल", "arroz"] },
+  lentils: { display: "Dal", category: "Pantry", aliases: ["lentil", "lentils", "dal", "daal", "दाल"] },
+  oil: { display: "Tel", category: "Pantry", aliases: ["oil", "tel", "tail", "तेल", "aceite"] },
+  salt: { display: "Namak", category: "Pantry", aliases: ["salt", "namak", "नमक", "sal"] },
+  eggs: { display: "Anda", category: "Dairy", aliases: ["egg", "eggs", "anda", "ande", "अंडा", "अंडे", "huevo", "huevos"] },
+  potato: { display: "Aloo", category: "Produce", aliases: ["potato", "potatoes", "aloo", "aalu", "alu", "आलू", "patata"] },
+  onion: { display: "Pyaaz", category: "Produce", aliases: ["onion", "onions", "pyaaz", "pyaz", "प्याज", "cebolla"] },
+  tomato: { display: "Tamatar", category: "Produce", aliases: ["tomato", "tomatoes", "tamatar", "tamater", "टमाटर"] },
+  soap: { display: "Sabun", category: "Personal Care", aliases: ["soap", "sabun", "saabun", "साबुन", "jabón", "jabon"] },
+  bread: { display: "Bread", category: "Bakery", aliases: ["bread", "ब्रेड", "pan"] },
+  butter: { display: "Makhan", category: "Dairy", aliases: ["butter", "makhan", "मक्खन"] },
+  paneer: { display: "Paneer", category: "Dairy", aliases: ["paneer", "पनीर"] },
+  yogurt: { display: "Dahi", category: "Dairy", aliases: ["yogurt", "yoghurt", "dahi", "दही"] }
+};
+const ALIAS_TO_PRODUCT = new Map(Object.entries(PRODUCT_ALIASES).flatMap(([key, product]) => product.aliases.map((alias) => [normalizeItemName(alias).toLocaleLowerCase(), { key, ...product }])));
+const ROMANIZED_DISPLAY_ALIASES = new Set(["atta", "aata", "doodh", "dudh", "dhoodh", "dhudh", "chini", "cheeni", "chawal", "chaawal", "dal", "daal", "tel", "tail", "namak", "anda", "ande", "aloo", "aalu", "alu", "pyaaz", "pyaz", "tamatar", "tamater", "sabun", "saabun", "makhan", "dahi"]);
+
 const GROCERY_TERMS = [...new Set([
   ...Object.values(CATEGORIES).flatMap(({ keywords }) => keywords),
+  ...Object.values(PRODUCT_ALIASES).flatMap(({ aliases }) => aliases),
   ...CATALOG.flatMap(({ name, substitutes }) => [name, ...substitutes])
 ].map((term) => normalizeItemName(term).toLocaleLowerCase()).filter((term) => term.length >= 3))]
   .sort((a, b) => b.split(" ").length - a.split(" ").length || b.length - a.length);
@@ -71,10 +94,10 @@ const NUMBER_WORDS = {
 };
 
 const HINGLISH_NUMBER_WORDS = { ek: 1, do: 2, teen: 3, char: 4, chaar: 4, panch: 5, paanch: 5, chhe: 6, che: 6, saat: 7, aath: 8, nau: 9, das: 10, gyarah: 11, barah: 12, terah: 13, chaudah: 14, pandrah: 15, solah: 16, satrah: 17, atharah: 18, unnis: 19, bees: 20 };
-const IMPLIED_PACK_ITEMS = new Set(["milk", "doodh", "dudh", "दूध", "leche"]);
+const IMPLIED_PACK_ITEMS = new Set(["milk"]);
 
 const UNIT_WORDS = {
-  en: { item: ["item", "items"], pack: ["pack", "packs"], bottle: ["bottle", "bottles"], box: ["box", "boxes"], dozen: ["dozen"], kg: ["kg", "kilogram", "kilograms", "kilo", "kilos"], g: ["g", "gram", "grams"], L: ["l", "litre", "litres", "liter", "liters"], mL: ["ml", "millilitre", "millilitres", "milliliter", "milliliters"] },
+  en: { item: ["item", "items", "piece", "pieces", "pc", "pcs"], pack: ["pack", "packs", "packet", "packets", "pkt"], bottle: ["bottle", "bottles"], box: ["box", "boxes"], dozen: ["dozen"], kg: ["kg", "kilogram", "kilograms", "kilo", "kilos"], g: ["g", "gram", "grams"], L: ["l", "litre", "litres", "liter", "liters"], mL: ["ml", "millilitre", "millilitres", "milliliter", "milliliters"] },
   hi: { item: ["वस्तु", "आइटम"], pack: ["पैक", "पैकेट"], bottle: ["बोतल", "बोतलें"], box: ["डिब्बा", "डिब्बे"], dozen: ["दर्जन"], kg: ["किलो", "किलोग्राम"], g: ["ग्राम"], L: ["लीटर"], mL: ["मिलीलीटर"] },
   es: { item: ["artículo", "artículos"], pack: ["paquete", "paquetes"], bottle: ["botella", "botellas"], box: ["caja", "cajas"], dozen: ["docena", "docenas"], kg: ["kg", "kilo", "kilos", "kilogramo", "kilogramos"], g: ["g", "gramo", "gramos"], L: ["l", "litro", "litros"], mL: ["ml", "mililitro", "mililitros"] }
 };
@@ -98,6 +121,8 @@ function parseQuantity(value) {
 }
 
 function categorizeItem(value) {
+  const aliased = ALIAS_TO_PRODUCT.get(normalizeItemName(value).toLocaleLowerCase());
+  if (aliased) return aliased.category;
   const name = normalizeItemName(value).toLocaleLowerCase();
   const words = new Set(name.split(/[^\p{L}\p{M}\p{N}]+/u).filter(Boolean));
 
@@ -132,7 +157,15 @@ function dedupeItems(items) {
 }
 
 function itemKey(value) {
-  return normalizeItemName(value).toLocaleLowerCase();
+  const key = normalizeItemName(value).toLocaleLowerCase();
+  return ALIAS_TO_PRODUCT.get(key)?.key ?? key;
+}
+
+function friendlyItemName(value) {
+  const name = normalizeItemName(value);
+  const lower = name.toLocaleLowerCase();
+  const product = ALIAS_TO_PRODUCT.get(lower);
+  return product && ROMANIZED_DISPLAY_ALIASES.has(lower) ? product.display : capitalize(name);
 }
 
 function sessionKey(value) {
@@ -318,16 +351,16 @@ function editDistance(left, right) {
 }
 
 function resolveGroceryTerm(value) {
-  const original = itemKey(value);
+  const original = normalizeItemName(value).toLocaleLowerCase();
   const exact = GROCERY_TERMS.find((term) => term === original || `${term}s` === original || `${term}es` === original);
-  if (exact) return { term: original, corrected: false };
+  if (exact) return { term: exact, name: friendlyItemName(original), corrected: false };
   if (original.includes(" ") || original.length < 4) return null;
   const closest = GROCERY_TERMS
     .filter((term) => !term.includes(" ") && Math.abs(term.length - original.length) <= 2)
     .map((term) => ({ term, distance: editDistance(original, term) }))
     .sort((a, b) => a.distance - b.distance || a.term.localeCompare(b.term))[0];
   const limit = Math.min(2, Math.ceil(original.length * 0.3));
-  return closest?.distance <= limit ? { ...closest, corrected: true, original } : null;
+  return closest?.distance <= limit ? { ...closest, name: friendlyItemName(closest.term), corrected: true, original } : null;
 }
 
 function parseKnownItemSequence(value, language) {
@@ -335,21 +368,26 @@ function parseKnownItemSequence(value, language) {
   if (/\d/u.test(replaceNumberWords(text, language))) return null;
   const words = text.split(" ").filter(Boolean);
   const items = [];
+  const unknown = [];
   for (let index = 0; index < words.length;) {
     const exact = GROCERY_TERMS.find((term) => words.slice(index, index + term.split(" ").length).join(" ") === term);
     if (exact) {
-      items.push({ name: capitalize(exact), quantity: 1, unit: "item" });
+      items.push({ name: friendlyItemName(exact), quantity: 1, unit: "item" });
       index += exact.split(" ").length;
       continue;
     }
     const resolved = resolveGroceryTerm(words[index]);
-    if (!resolved) return null;
-    const item = { name: capitalize(resolved.term), quantity: 1, unit: "item" };
+    if (!resolved) {
+      unknown.push(words[index]);
+      index += 1;
+      continue;
+    }
+    const item = { name: resolved.name, quantity: 1, unit: "item" };
     if (resolved.corrected) item.correction = { from: words[index], to: resolved.term };
     items.push(item);
     index += 1;
   }
-  return items.length > 1 ? items : null;
+  return items.length ? { items, unknown } : null;
 }
 
 function replaceNumberWords(value, language) {
@@ -399,16 +437,23 @@ function parseItemPhrase(value, language) {
       quantity = parseQuantity(match[2].replace(",", "."));
       unit = aliases.get(match[3]) ?? "item";
     } else {
-      match = text.match(/^(\d+(?:[.,]\d+)?)\s+(.+)$/u);
-      quantity = match ? parseQuantity(match[1].replace(",", ".")) : 1;
-      name = match ? match[2] : text;
+      match = text.match(new RegExp(`^(.+?)\\s+(\\d+(?:[.,]\\d+)?)(?:\\s+(${units}))?$`, "u"));
+      if (match) {
+        name = match[1];
+        quantity = parseQuantity(match[2].replace(",", "."));
+        unit = match[3] ? aliases.get(match[3]) : "item";
+      } else {
+        match = text.match(/^(\d+(?:[.,]\d+)?)\s+(.+)$/u);
+        quantity = match ? parseQuantity(match[1].replace(",", ".")) : 1;
+        name = match ? match[2] : text;
+      }
     }
   }
 
   name = cleanItemName(name, language);
   if (quantity === null || validateItemName(name)) return null;
   if (unit === "item" && quantity > 1 && IMPLIED_PACK_ITEMS.has(itemKey(name))) unit = "pack";
-  return { name: capitalize(name), quantity, unit };
+  return { name: friendlyItemName(name), quantity, unit };
 }
 
 function parseQuantityValue(value, language) {
@@ -422,8 +467,7 @@ function parseQuantityValue(value, language) {
 }
 
 function splitItemPhrases(value, language) {
-  const connector = language === "hi" ? "और" : language === "es" ? "y" : "and";
-  return value.split(new RegExp(`\\s*(?:,|\\s${connector}\\s)\\s*`, "u")).map((part) => part.trim()).filter(Boolean);
+  return value.split(/\s*(?:,|&|\s+(?:and|aur|or|y|और)\s+)\s*/u).map((part) => part.trim()).filter(Boolean);
 }
 
 function parseItems(value, language) {
@@ -433,14 +477,16 @@ function parseItems(value, language) {
   const items = parts.map((part) => {
     const item = parseItemPhrase(part, language);
     if (!item) return null;
+    const originalName = item.name;
     const resolved = resolveGroceryTerm(item.name);
+    if (!resolved) return null;
+    item.name = resolved.name;
     if (resolved?.corrected) {
-      item.correction = { from: itemKey(item.name), to: resolved.term };
-      item.name = capitalize(resolved.term);
+      item.correction = { from: normalizeItemName(originalName).toLocaleLowerCase(), to: resolved.term };
     }
     return item;
   });
-  return items.length && items.every(Boolean) ? items : null;
+  return items.length && items.every(Boolean) ? { items, unknown: [] } : null;
 }
 
 function commandResult(intent, language, details = {}) {
@@ -648,8 +694,14 @@ function parseCommand(value, recognitionLanguage = "en-US") {
   for (const pattern of removePatterns[language]) {
     const match = text.match(pattern);
     if (!match) continue;
-    const items = parseItems(match[1], language);
-    return items ? commandResult("remove", language, { items }) : { ok: false, error: "I couldn't identify which item to remove." };
+    const parsedItems = parseItems(match[1], language);
+    return parsedItems ? commandResult("remove", language, parsedItems) : { ok: false, error: "I couldn't identify which item to remove." };
+  }
+
+  const hinglishRemove = text.match(/^(?:list\s+se\s+)?(.+?)\s+(?:hata\s+do|hatao|remove\s+karo|list\s+se\s+hata\s+do|delete\s+kar\s+do|nahi\s+chahiye)$/u);
+  if (hinglishRemove) {
+    const parsedItems = parseItems(hinglishRemove[1], language);
+    return parsedItems ? commandResult("remove", language, parsedItems) : { ok: false, error: "I couldn't identify which item to remove." };
   }
 
   const addPatterns = {
@@ -663,14 +715,18 @@ function parseCommand(value, recognitionLanguage = "en-US") {
     let body = match[1];
     if (language === "en") body = body.replace(/\s+(?:to|on)\s+(?:my\s+)?list$/u, "");
     if (language === "es") body = body.replace(/\s+a\s+mi\s+lista$/u, "");
-    const items = parseItems(body, language);
-    return items ? commandResult("add", language, { items }) : { ok: false, error: "I heard an add command, but couldn't identify valid items." };
+    const parsedItems = parseItems(body, language);
+    return parsedItems ? commandResult("add", language, parsedItems) : { ok: false, error: "I heard an add command, but couldn't identify valid items." };
+  }
+
+  const hinglishAdd = text.match(/^(?:(?:mujhe|muje|list\s+m(?:e|ein))\s+)?(.+?)\s+(?:add|ad|add\s+karo|add\s+kar\s+do|list\s+m(?:e|ein)\s+(?:daal|dal|daalo|dalo)(?:\s+do)?|(?:daal|dal|daalo|dalo)(?:\s+do)?|chahiye|chaiye|le\s+(?:aao|lena)|lena|kharidna\s+hai|kharidni\s+hai)$/u);
+  if (hinglishAdd) {
+    const parsedItems = parseItems(hinglishAdd[1], language);
+    return parsedItems ? commandResult("add", language, parsedItems) : { ok: false, error: "I heard an add command, but couldn't identify valid items." };
   }
 
   const implicitItems = parseItems(text, language);
-  if (implicitItems?.some(({ quantity, unit }) => quantity !== 1 || unit !== "item")) {
-    return commandResult("add", language, { items: implicitItems });
-  }
+  if (implicitItems) return commandResult("add", language, implicitItems);
 
   return { ok: false, error: "I didn't understand that yet. Try “Add milk”, “Remove bread”, or “Set apples to 3”." };
 }
@@ -772,6 +828,7 @@ function init() {
   let userCancelled = false;
   let searchState = null;
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const canSpeak = typeof window.speechSynthesis?.speak === "function" && typeof window.SpeechSynthesisUtterance === "function";
 
   function showFeedback(message, tone = "success") {
     window.clearTimeout(feedbackTimer);
@@ -840,7 +897,7 @@ function init() {
   }
 
   function speak(message) {
-    if (!("speechSynthesis" in window) || !nodes.spokenFeedback.checked) return;
+    if (!canSpeak || !nodes.spokenFeedback.checked) return;
     window.speechSynthesis.cancel();
     window.speechSynthesis.resume();
     const utterance = new SpeechSynthesisUtterance(message);
@@ -1017,6 +1074,15 @@ function init() {
     };
   }
 
+  function confirmPartialCommand(parsed) {
+    if (!parsed.unknown?.length) return parsed;
+    const names = parsed.items.map(({ name }) => name).join(", ");
+    const unknown = parsed.unknown.join(" ");
+    return window.confirm(`I understood ${names}, but not “${unknown}”.\n\nUse only the recognized items?`)
+      ? parsed
+      : null;
+  }
+
   function handleCommand(rawCommand, source) {
     const transcript = normalizeItemName(rawCommand);
     setVoiceState("processing", "✨ Got it! Let me organize that…", transcript);
@@ -1029,6 +1095,14 @@ function init() {
       return;
     }
     parsed = confirmCorrections(parsed);
+    parsed = confirmPartialCommand(parsed);
+    if (!parsed) {
+      const message = "No items were changed. Try saying the unknown item again.";
+      setVoiceState("error", message, transcript);
+      showFeedback(message, "error");
+      returnVoiceToIdle();
+      return;
+    }
 
     const result = executeParsedCommand(parsed);
     const message = `${result.ok ? "✓" : "!"} ${result.message}`;
@@ -1619,7 +1693,7 @@ function init() {
   const savedLanguage = store.preferences.language === "en-US" ? "en-IN" : store.preferences.language;
   nodes.language.value = ["en-IN", "hi-IN", "es-ES"].includes(savedLanguage) ? savedLanguage : "en-IN";
   nodes.spokenFeedback.checked = store.preferences.spokenFeedback !== false;
-  nodes.spokenFeedback.disabled = !("speechSynthesis" in window);
+  nodes.spokenFeedback.disabled = !canSpeak;
   nodes.micButton.disabled = !SpeechRecognition;
   nodes.language.dispatchEvent(new Event("change"));
   if (!SpeechRecognition) {

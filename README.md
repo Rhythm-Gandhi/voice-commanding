@@ -47,6 +47,11 @@ Example commands:
 Add milk and bread
 Add do milk
 Umm, add onion spinach milk, you know
+atta dhoodh chini
+mujhe atta dhoodh chini chahiye
+2 kilo atta
+dhoodh 2 packet
+chini hata do
 I want to buy bananas
 Add 2 bottles of water
 Remove milk from my list

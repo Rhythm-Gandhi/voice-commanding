@@ -1,0 +1,12 @@
+.env
+.env.*
+node_modules/
+dist/
+.next/
+out/
+coverage/
+.vscode/
+.idea/
+*.log
+.DS_Store
+Thumbs.db

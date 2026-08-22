@@ -1,6 +1,6 @@
 # Piko - Voice Command Shopping Assistant
 
-Piko is a cheerful, mobile-first shopping companion built for a software engineering assessment. Phase 1 provides a polished manual shopping list with no runtime dependencies or build step.
+Piko is a cheerful, mobile-first shopping companion built for a software engineering assessment. Phase 2 adds multilingual voice and typed commands with no runtime dependencies or build step.
 
 ## Currently implemented
 
@@ -11,10 +11,15 @@ Piko is a cheerful, mobile-first shopping companion built for a software enginee
 - Responsive item cards, intentional empty/loading/success/error states, and a prepared voice-assistant panel
 - Semantic HTML, keyboard controls, visible focus states, reduced-motion support, and safe DOM rendering
 - Input normalization, validation, and reasonable limits
+- Native Web Speech API recognition with live transcript and clear listening, processing, success, and error states
+- One shared parser/action pipeline for spoken and typed commands
+- English, Hindi, and Spanish add, remove, quantity, multi-item, and clear commands
+- Honest placeholders for understood search and suggestion requests
+- Optional native spoken confirmation for successful voice actions
+- Microphone permission, timeout, no-speech, network, cancellation, and unsupported-browser handling
 
 ## Planned
 
-- Phase 2: multilingual voice commands and natural-language intent parsing
 - Phase 3: history-based, seasonal, sale, and substitute suggestions
 - Phase 4: voice product search with brand, size, and price filters
 - Phase 5: final hardening, documentation, and deployment
@@ -29,6 +34,23 @@ python -m http.server 8000
 
 Then open <http://localhost:8000>. Directly opening `index.html` may also work, but a local server matches production behavior more closely.
 
+## Voice and typed commands
+
+Choose English, हिन्दी, or Español, then tap the microphone or enter the same phrase in the command field. Examples:
+
+```text
+Add 2 bottles of milk and 5 apples
+Remove milk from my list
+Set apples to 3
+Add two more apples
+दो बोतल दूध जोड़ो
+दूध की मात्रा तीन करो
+Añade dos botellas de leche
+Cambia la cantidad de leche a tres botellas
+```
+
+Voice recognition availability and supported languages depend on the browser. Typed commands always use the same parser and remain available as a fallback. Search and suggestion requests are recognized but intentionally remain placeholders until Phases 4 and 3 respectively.
+
 ## Test
 
 With a current Node.js release installed:
@@ -37,11 +59,11 @@ With a current Node.js release installed:
 node --test app.test.mjs
 ```
 
-Manual checks should cover add, edit, remove, quantity controls, completion, category grouping, refresh persistence, empty and invalid states, keyboard navigation, and mobile widths.
+Manual checks should also cover typed commands in all three languages, live transcripts, microphone permission errors, listening cancellation, spoken-feedback preference, refresh persistence, keyboard navigation, and mobile widths.
 
 ## Data and privacy
 
-Phase 1 stores one versioned record under `piko:shopping:v1` in the current browser's localStorage. No data leaves the browser, and no environment variables or API keys are used.
+Piko stores one versioned record under `piko:shopping:v1` in the current browser's localStorage. It does not intentionally record or store microphone audio. Browser speech recognition may rely on a browser or provider-managed remote recognition service. No environment variables or API keys are used.
 
 ## Project structure
 

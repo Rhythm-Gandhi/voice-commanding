@@ -36,19 +36,59 @@
       </section>
 
       <section class="assistant-card" data-voice-state="idle" aria-labelledby="assistant-title">
-        <div class="assistant-copy">
-          <span class="state-pill"><span class="state-dot" aria-hidden="true"></span> Idle</span>
-          <h2 id="assistant-title">Say it. Piko will list it.</h2>
-          <p>Voice commands arrive in Phase 2. Your assistant is dressed and ready.</p>
+        <div class="assistant-main">
+          <div class="assistant-toolbar">
+            <span class="state-pill"><span class="state-dot" aria-hidden="true"></span> <span id="voice-state-label">Ready</span></span>
+            <label class="language-control" for="voice-language">
+              <span>Language</span>
+              <select id="voice-language">
+                <option value="en-US">English</option>
+                <option value="hi-IN">हिन्दी</option>
+                <option value="es-ES">Español</option>
+              </select>
+            </label>
+          </div>
+          <div class="assistant-copy">
+            <h2 id="assistant-title">Say it. Piko will list it.</h2>
+            <p id="assistant-status" aria-live="polite">Tap the microphone or type a command below.</p>
+          </div>
+
+          <div id="voice-transcript" class="voice-transcript" hidden>
+            <span>I heard</span>
+            <q id="transcript-text"></q>
+          </div>
+
+          <form id="command-form" class="command-form" novalidate>
+            <label class="sr-only" for="command-input">Type a shopping command</label>
+            <div class="command-input-row">
+              <input
+                id="command-input"
+                type="text"
+                maxlength="160"
+                autocomplete="off"
+                placeholder="Try “Add 2 bottles of milk”"
+                required
+              >
+              <button type="submit">Send <span aria-hidden="true">→</span></button>
+            </div>
+          </form>
+          <p class="command-hint">Try add, remove, quantity, clear, search, or suggestion commands.</p>
         </div>
         <div class="mic-wrap">
           <span class="mic-ring" aria-hidden="true"></span>
-          <button class="mic-button" type="button" disabled aria-describedby="voice-note">
+          <button id="mic-button" class="mic-button" type="button" aria-describedby="voice-note" aria-label="Start voice input">
             <span aria-hidden="true">🎙️</span>
-            <span class="sr-only">Voice input unavailable until Phase 2</span>
           </button>
-          <span id="voice-note" class="phase-note">Coming in Phase 2</span>
+          <span id="voice-note" class="phase-note">Tap to speak</span>
+          <label class="speech-toggle">
+            <input id="spoken-feedback" type="checkbox" checked>
+            <span>Speak voice confirmations</span>
+          </label>
         </div>
+        <details class="voice-privacy">
+          <summary>How voice privacy works</summary>
+          <p>Piko does not intentionally record or store microphone audio. Depending on your browser, speech recognition may use a browser or provider-managed remote service.</p>
+        </details>
       </section>
 
       <div class="content-grid">
@@ -141,7 +181,7 @@
               <span>🛒</span><i></i><i></i><i></i>
             </div>
             <h3>Your shopping list is feeling lonely!</h3>
-            <p>Add something with the form. Next phase, you’ll be able to simply say it.</p>
+            <p>Add something with the form, type a command, or simply say it to Piko.</p>
             <button id="empty-add-button" class="secondary-button" type="button">Add my first item</button>
           </div>
 

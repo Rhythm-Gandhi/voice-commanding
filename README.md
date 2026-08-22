@@ -10,7 +10,12 @@ Piko is a cheerful, mobile-first shopping list manager with multilingual voice c
 
 - Native voice recognition and typed fallback through one command pipeline
 - English/Hinglish, Hindi, and Spanish add, remove, quantity, search, substitute, and suggestion commands
+- Natural space-separated grocery commands with multilingual filler-word filtering
+- Grocery spelling suggestions that require confirmation before correction
 - Categorized shopping list with editing, completion, quantities, persistence, and clear/reset controls
+- Duplicate-safe additions that update an existing matching item instead of creating another card
+- Expanded Produce, Dairy, Bakery, Frozen, Meat & Seafood, Asian Pantry, Personal Care, Household, and pantry sorting
+- Native list sharing with clipboard fallback and dependency-free PNG export
 - Explainable regular, likely-needed, seasonal, demonstration-deal, and substitute recommendations
 - Optional, clearly labelled demo history for immediate evaluation
 - Structured local-catalog search by product, category, brand, price, size, attribute, and availability
@@ -41,6 +46,7 @@ Example commands:
 ```text
 Add milk and bread
 Add do milk
+Umm, add onion spinach milk, you know
 I want to buy bananas
 Add 2 bottles of water
 Remove milk from my list

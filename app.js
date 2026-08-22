@@ -22,23 +22,34 @@ const CATALOG = [
   { id: "water-large", name: "Spring Water", category: "Beverages", brand: "AquaPure", price: 30, salePrice: 25, size: "1.5 L", sizeClass: "large", attributes: ["still"], seasonalMonths: [], available: true, substitutes: ["Mineral Water"] },
   { id: "water-small", name: "Mineral Water", category: "Beverages", brand: "Evian", price: 80, salePrice: null, size: "750 mL", sizeClass: "small", attributes: ["mineral", "still"], seasonalMonths: [], available: true, substitutes: ["Spring Water"] },
   { id: "hot-chocolate", name: "Hot chocolate", category: "Beverages", brand: "Cocoa House", price: 199, salePrice: 169, size: "250 g", sizeClass: "small", attributes: ["vegetarian"], seasonalMonths: [10, 11, 0, 1], available: true, substitutes: ["Cocoa powder"] },
-  { id: "toothpaste-colgate", name: "Colgate Total Toothpaste", category: "Household", brand: "Colgate", price: 210, salePrice: 189, size: "150 g", sizeClass: "medium", attributes: ["fluoride"], seasonalMonths: [], available: true, substitutes: ["Pepsodent Complete Toothpaste"] },
-  { id: "toothpaste-pepsodent", name: "Pepsodent Complete Toothpaste", category: "Household", brand: "Pepsodent", price: 145, salePrice: null, size: "150 g", sizeClass: "medium", attributes: ["fluoride"], seasonalMonths: [], available: true, substitutes: ["Colgate Total Toothpaste"] },
-  { id: "toothpaste-sensodyne", name: "Sensodyne Repair Toothpaste", category: "Household", brand: "Sensodyne", price: 250, salePrice: 229, size: "100 g", sizeClass: "small", attributes: ["sensitive"], seasonalMonths: [], available: true, substitutes: ["Colgate Total Toothpaste"] },
-  { id: "dove-bar", name: "Dove Beauty Bar", category: "Household", brand: "Dove", price: 190, salePrice: null, size: "4 pack", sizeClass: "medium", attributes: ["moisturizing"], seasonalMonths: [], available: true, substitutes: ["Gentle Soap"] },
-  { id: "dove-shampoo", name: "Dove Daily Shine Shampoo", category: "Household", brand: "Dove", price: 275, salePrice: 249, size: "400 mL", sizeClass: "large", attributes: ["moisturizing"], seasonalMonths: [], available: true, substitutes: [] }
+  { id: "toothpaste-colgate", name: "Colgate Total Toothpaste", category: "Personal Care", brand: "Colgate", price: 210, salePrice: 189, size: "150 g", sizeClass: "medium", attributes: ["fluoride"], seasonalMonths: [], available: true, substitutes: ["Pepsodent Complete Toothpaste"] },
+  { id: "toothpaste-pepsodent", name: "Pepsodent Complete Toothpaste", category: "Personal Care", brand: "Pepsodent", price: 145, salePrice: null, size: "150 g", sizeClass: "medium", attributes: ["fluoride"], seasonalMonths: [], available: true, substitutes: ["Colgate Total Toothpaste"] },
+  { id: "toothpaste-sensodyne", name: "Sensodyne Repair Toothpaste", category: "Personal Care", brand: "Sensodyne", price: 250, salePrice: 229, size: "100 g", sizeClass: "small", attributes: ["sensitive"], seasonalMonths: [], available: true, substitutes: ["Colgate Total Toothpaste"] },
+  { id: "dove-bar", name: "Dove Beauty Bar", category: "Personal Care", brand: "Dove", price: 190, salePrice: null, size: "4 pack", sizeClass: "medium", attributes: ["moisturizing"], seasonalMonths: [], available: true, substitutes: ["Gentle Soap"] },
+  { id: "dove-shampoo", name: "Dove Daily Shine Shampoo", category: "Personal Care", brand: "Dove", price: 275, salePrice: 249, size: "400 mL", sizeClass: "large", attributes: ["moisturizing"], seasonalMonths: [], available: true, substitutes: [] }
 ];
 
 const CATEGORIES = {
-  Produce: { icon: "🥬", keywords: ["apple", "banana", "orange", "grape", "lemon", "lime", "mango", "berry", "berries", "tomato", "potato", "onion", "garlic", "carrot", "spinach", "lettuce", "broccoli", "cucumber", "avocado", "fruit", "vegetable", "coriander", "cilantro", "सेब", "केला", "केले", "संतरा", "आलू", "प्याज", "manzana", "manzanas", "plátano", "plátanos", "naranja", "naranjas", "patata", "cebolla"] },
+  Produce: { icon: "🥬", keywords: ["apple", "banana", "orange", "grape", "lemon", "lime", "mango", "berry", "berries", "tomato", "potato", "onion", "garlic", "carrot", "spinach", "lettuce", "broccoli", "cucumber", "avocado", "fruit", "vegetable", "coriander", "cilantro", "सेब", "केला", "केले", "संतरा", "आलू", "प्याज", "पालक", "manzana", "manzanas", "plátano", "plátanos", "naranja", "naranjas", "patata", "cebolla", "espinaca"] },
   Dairy: { icon: "🥛", keywords: ["milk", "cheese", "yogurt", "yoghurt", "butter", "cream", "paneer", "egg", "दूध", "पनीर", "अंडा", "अंडे", "leche", "queso", "huevo", "huevos"] },
   Bakery: { icon: "🥖", keywords: ["bread", "bun", "bagel", "croissant", "cake", "muffin", "tortilla", "ब्रेड", "रोटी", "pan"] },
   Snacks: { icon: "🍿", keywords: ["chips", "crisps", "cookie", "cookies", "biscuit", "chocolate", "candy", "popcorn", "nuts", "चिप्स", "बिस्कुट", "galleta", "galletas"] },
   Beverages: { icon: "🧃", keywords: ["water", "juice", "soda", "coffee", "tea", "cola", "drink", "पानी", "जूस", "चाय", "agua", "jugo", "café", "cafe"] },
-  Household: { icon: "🧽", keywords: ["soap", "toothpaste", "shampoo", "detergent", "cleaner", "tissue", "toilet paper", "paper towel", "sponge", "garbage bag", "trash bag"] },
+  Frozen: { icon: "🧊", keywords: ["frozen peas", "frozen corn", "frozen vegetables", "ice cream", "frozen pizza", "फ्रोजन मटर", "helado"] },
+  "Meat & Seafood": { icon: "🐟", keywords: ["chicken", "mutton", "beef", "pork", "fish", "salmon", "prawn", "prawns", "shrimp", "tuna", "चिकन", "मछली", "pollo", "pescado"] },
+  Household: { icon: "🧽", keywords: ["dish soap", "detergent", "cleaner", "tissue", "toilet paper", "paper towel", "sponge", "garbage bag", "trash bag"] },
+  "Personal Care": { icon: "🧴", keywords: ["soap", "toothpaste", "shampoo", "conditioner", "body wash", "deodorant", "toothbrush", "साबुन", "टूथपेस्ट", "jabón", "jabon", "champú", "champu"] },
+  "Asian Pantry": { icon: "🍜", keywords: ["soy sauce", "noodles", "ramen", "tofu", "miso", "coconut milk", "curry paste", "rice paper", "sesame oil", "nori", "kimchi", "चाउमीन", "सोया सॉस"] },
   Pantry: { icon: "🥫", keywords: ["rice", "pasta", "flour", "sugar", "salt", "oil", "cereal", "oats", "spice", "sauce", "beans", "lentil", "dal", "चावल", "आटा", "चीनी", "नमक", "दाल", "arroz", "harina", "azúcar", "azucar", "sal", "aceite"] },
   Other: { icon: "🧺", keywords: [] }
 };
+
+const GROCERY_TERMS = [...new Set([
+  ...Object.values(CATEGORIES).flatMap(({ keywords }) => keywords),
+  ...CATALOG.flatMap(({ name, substitutes }) => [name, ...substitutes])
+].map((term) => normalizeItemName(term).toLocaleLowerCase()).filter((term) => term.length >= 3))]
+  .sort((a, b) => b.split(" ").length - a.split(" ").length || b.length - a.length);
+const SPEECH_FILLERS = ["you know", "uh", "uhh", "umm", "um", "erm", "hmm", "कृपया", "उम्म", "अम्म", "por favor", "este", "eh", "em"];
 
 const UNITS = new Set(["item", "pack", "bottle", "box", "dozen", "kg", "g", "L", "mL"]);
 const UNIT_LABELS = {
@@ -90,18 +101,34 @@ function categorizeItem(value) {
   const name = normalizeItemName(value).toLocaleLowerCase();
   const words = new Set(name.split(/[^\p{L}\p{M}\p{N}]+/u).filter(Boolean));
 
-  for (const [category, { keywords }] of Object.entries(CATEGORIES)) {
-    if (category === "Other") continue;
-    const matches = keywords.some((keyword) => keyword.includes(" ")
-      ? name.includes(keyword)
-      : words.has(keyword) || words.has(`${keyword}s`) || words.has(`${keyword}es`));
-    if (matches) return category;
+  for (const phrasesOnly of [true, false]) {
+    for (const [category, { keywords }] of Object.entries(CATEGORIES)) {
+      if (category === "Other") continue;
+      const matches = keywords.some((keyword) => keyword.includes(" ") === phrasesOnly && (phrasesOnly
+        ? name.includes(keyword)
+        : words.has(keyword) || words.has(`${keyword}s`) || words.has(`${keyword}es`)));
+      if (matches) return category;
+    }
   }
   return "Other";
 }
 
 function createEmptyStore() {
   return { version: 1, list: { items: [] }, history: [], preferences: {} };
+}
+
+function dedupeItems(items) {
+  const deduped = [];
+  for (const item of items) {
+    const existing = deduped.find((candidate) => !candidate.completed && !item.completed && itemKey(candidate.name) === itemKey(item.name));
+    if (existing && existing.quantity + item.quantity <= MAX_QUANTITY) {
+      existing.quantity = Math.round((existing.quantity + item.quantity) * 100) / 100;
+      existing.updatedAt = existing.updatedAt > item.updatedAt ? existing.updatedAt : item.updatedAt;
+    } else {
+      deduped.push({ ...item });
+    }
+  }
+  return deduped;
 }
 
 function itemKey(value) {
@@ -226,6 +253,17 @@ function formatAmount(quantity, unit) {
   return `${formatNumber(quantity)} ${quantity === 1 ? labels[0] : labels[1]}`;
 }
 
+function shoppingListText(items) {
+  if (!items.length) return "Piko shopping list\n\nYour list is empty.";
+  const lines = ["Piko shopping list"];
+  for (const [category] of Object.entries(CATEGORIES)) {
+    const categoryItems = items.filter((item) => item.category === category);
+    if (!categoryItems.length) continue;
+    lines.push("", category, ...categoryItems.map((item) => `${item.completed ? "✓" : "•"} ${item.name} — ${formatAmount(item.quantity, item.unit)}`));
+  }
+  return lines.join("\n");
+}
+
 function quantityStep(unit) {
   if (unit === "g" || unit === "mL") return 50;
   if (unit === "kg" || unit === "L") return 0.25;
@@ -247,13 +285,71 @@ function escapeRegex(value) {
 }
 
 function normalizeCommand(value) {
-  return normalizeItemName(value)
+  let text = normalizeItemName(value)
     .replace(/[’‘]/g, "'")
     .replace(/[!?;:“”\"]/g, " ")
     .replace(/\s+/g, " ")
     .replace(/[.]+$/g, "")
     .trim()
     .toLocaleLowerCase();
+  for (const filler of SPEECH_FILLERS) {
+    text = text.replace(new RegExp(`(^|\\s)${escapeRegex(filler)}(?=\\s|$)`, "gu"), "$1");
+  }
+  return text.replace(/\s+/g, " ").trim();
+}
+
+function editDistance(left, right) {
+  const a = [...left];
+  const b = [...right];
+  let previous = b.map((_, index) => index + 1);
+  previous.unshift(0);
+  for (let row = 1; row <= a.length; row += 1) {
+    const current = [row];
+    for (let column = 1; column <= b.length; column += 1) {
+      current[column] = Math.min(
+        current[column - 1] + 1,
+        previous[column] + 1,
+        previous[column - 1] + Number(a[row - 1] !== b[column - 1])
+      );
+    }
+    previous = current;
+  }
+  return previous[b.length];
+}
+
+function resolveGroceryTerm(value) {
+  const original = itemKey(value);
+  const exact = GROCERY_TERMS.find((term) => term === original || `${term}s` === original || `${term}es` === original);
+  if (exact) return { term: original, corrected: false };
+  if (original.includes(" ") || original.length < 4) return null;
+  const closest = GROCERY_TERMS
+    .filter((term) => !term.includes(" ") && Math.abs(term.length - original.length) <= 2)
+    .map((term) => ({ term, distance: editDistance(original, term) }))
+    .sort((a, b) => a.distance - b.distance || a.term.localeCompare(b.term))[0];
+  const limit = Math.min(2, Math.ceil(original.length * 0.3));
+  return closest?.distance <= limit ? { ...closest, corrected: true, original } : null;
+}
+
+function parseKnownItemSequence(value, language) {
+  const text = normalizeCommand(value);
+  if (/\d/u.test(replaceNumberWords(text, language))) return null;
+  const words = text.split(" ").filter(Boolean);
+  const items = [];
+  for (let index = 0; index < words.length;) {
+    const exact = GROCERY_TERMS.find((term) => words.slice(index, index + term.split(" ").length).join(" ") === term);
+    if (exact) {
+      items.push({ name: capitalize(exact), quantity: 1, unit: "item" });
+      index += exact.split(" ").length;
+      continue;
+    }
+    const resolved = resolveGroceryTerm(words[index]);
+    if (!resolved) return null;
+    const item = { name: capitalize(resolved.term), quantity: 1, unit: "item" };
+    if (resolved.corrected) item.correction = { from: words[index], to: resolved.term };
+    items.push(item);
+    index += 1;
+  }
+  return items.length > 1 ? items : null;
 }
 
 function replaceNumberWords(value, language) {
@@ -331,7 +427,19 @@ function splitItemPhrases(value, language) {
 }
 
 function parseItems(value, language) {
-  const items = splitItemPhrases(value, language).map((part) => parseItemPhrase(part, language));
+  const parts = splitItemPhrases(value, language);
+  const sequence = parts.length === 1 ? parseKnownItemSequence(parts[0], language) : null;
+  if (sequence) return sequence;
+  const items = parts.map((part) => {
+    const item = parseItemPhrase(part, language);
+    if (!item) return null;
+    const resolved = resolveGroceryTerm(item.name);
+    if (resolved?.corrected) {
+      item.correction = { from: itemKey(item.name), to: resolved.term };
+      item.name = capitalize(resolved.term);
+    }
+    return item;
+  });
   return items.length && items.every(Boolean) ? items : null;
 }
 
@@ -416,7 +524,11 @@ function parseCatalogSearch(value, language = "en", catalog = CATALOG) {
     Dairy: ["dairy", "lácteos", "lacteos", "डेयरी"],
     Bakery: ["bakery", "panadería", "panaderia", "बेकरी"],
     Beverages: ["beverage", "beverages", "drinks", "bebida", "bebidas", "पेय"],
-    Household: ["household", "personal care", "hogar", "घरेलू"]
+    Frozen: ["frozen", "congelado", "congelados", "फ्रोजन"],
+    "Meat & Seafood": ["meat", "seafood", "carne", "mariscos", "मांस", "मछली"],
+    Household: ["household", "hogar", "घरेलू"],
+    "Personal Care": ["personal care", "hygiene", "cuidado personal", "निजी देखभाल"],
+    "Asian Pantry": ["asian pantry", "asian food", "despensa asiática", "एशियाई पेंट्री"]
   };
   for (const [category, aliases] of Object.entries(categoryAliases)) {
     const alias = aliases.find((candidate) => new RegExp(`(^|\\s)${escapeRegex(candidate)}(?=$|\\s)`, "u").test(text));
@@ -618,6 +730,8 @@ function init() {
     empty: document.querySelector("#empty-state"),
     emptyAdd: document.querySelector("#empty-add-button"),
     summary: document.querySelector("#list-summary"),
+    shareList: document.querySelector("#share-list"),
+    downloadListImage: document.querySelector("#download-list-image"),
     clearCompleted: document.querySelector("#clear-completed"),
     productSearch: document.querySelector("#product-search"),
     searchSummary: document.querySelector("#search-summary"),
@@ -742,7 +856,7 @@ function init() {
     try {
       const parsed = JSON.parse(saved);
       if (parsed?.version !== 1 || !Array.isArray(parsed?.list?.items)) throw new Error("Unsupported storage schema");
-      const items = parsed.list.items.map(validStoredItem).filter(Boolean);
+      const items = dedupeItems(parsed.list.items.map(validStoredItem).filter(Boolean));
       if (items.length !== parsed.list.items.length) showFeedback("Some damaged saved items were safely skipped.", "error");
       return {
         version: 1,
@@ -786,7 +900,7 @@ function init() {
   }
 
   function addListItem({ name, quantity, unit, category }) {
-    const existing = store.list.items.find((item) => !item.completed && item.unit === unit && itemKey(item.name) === itemKey(name));
+    const existing = store.list.items.find((item) => !item.completed && itemKey(item.name) === itemKey(name));
     if (existing && existing.quantity + quantity <= MAX_QUANTITY) {
       existing.quantity = Math.round((existing.quantity + quantity) * 100) / 100;
       existing.updatedAt = new Date().toISOString();
@@ -812,10 +926,16 @@ function init() {
 
   function executeParsedCommand(parsed) {
     if (parsed.intent === "add") {
-      const items = parsed.items.map(addListItem);
+      const duplicates = [];
+      const items = parsed.items.map((incoming) => {
+        const existing = store.list.items.find((item) => !item.completed && itemKey(item.name) === itemKey(incoming.name));
+        if (existing) duplicates.push(existing.name);
+        return addListItem(incoming);
+      });
       saveStore();
       render();
-      return { ok: true, message: actionMessage(parsed.language, "added", { items }) };
+      const duplicateMessage = duplicates.length ? ` Updated ${[...new Set(duplicates)].join(", ")} instead of creating duplicates.` : "";
+      return { ok: true, message: `${actionMessage(parsed.language, "added", { items })}${duplicateMessage}` };
     }
 
     if (parsed.intent === "remove") {
@@ -884,18 +1004,31 @@ function init() {
     return { ok: true, message: count ? `I found ${count} history-based suggestion${count === 1 ? "" : "s"}. See why below.` : "I need a little more shopping history first. You can load the clearly labelled demo history below." };
   }
 
-  async function handleCommand(rawCommand, source) {
+  function confirmCorrections(parsed) {
+    const corrections = parsed.items?.flatMap(({ correction }) => correction ? [correction] : []) ?? [];
+    if (!corrections.length) return parsed;
+    const summary = corrections.map(({ from, to }) => `“${from}” → “${to}”`).join("\n");
+    const accepted = window.confirm(`Piko found a possible spelling correction:\n\n${summary}\n\nSelect OK to use the correction, or Cancel to keep what you said.`);
+    return {
+      ...parsed,
+      items: parsed.items.map(({ correction, ...item }) => correction
+        ? { ...item, name: capitalize(accepted ? correction.to : correction.from) }
+        : item)
+    };
+  }
+
+  function handleCommand(rawCommand, source) {
     const transcript = normalizeItemName(rawCommand);
     setVoiceState("processing", "✨ Got it! Let me organize that…", transcript);
-    await new Promise((resolve) => window.setTimeout(resolve, 220));
 
-    const parsed = parseCommand(transcript, nodes.language.value);
+    let parsed = parseCommand(transcript, nodes.language.value);
     if (!parsed.ok) {
       setVoiceState("error", parsed.error, transcript);
       showFeedback(parsed.error, "error");
       returnVoiceToIdle();
       return;
     }
+    parsed = confirmCorrections(parsed);
 
     const result = executeParsedCommand(parsed);
     const message = `${result.ok ? "✓" : "!"} ${result.message}`;
@@ -1165,6 +1298,8 @@ function init() {
     const items = store.list.items;
     const completed = items.filter((item) => item.completed).length;
     nodes.summary.textContent = `${items.length} ${items.length === 1 ? "item" : "items"}${completed ? ` • ${completed} checked` : ""}`;
+    nodes.shareList.disabled = items.length === 0;
+    nodes.downloadListImage.disabled = items.length === 0;
     nodes.clearCompleted.hidden = completed === 0;
     nodes.empty.hidden = items.length !== 0;
     nodes.groups.replaceChildren();
@@ -1220,7 +1355,7 @@ function init() {
     showFeedback("Adding your item…", "processing");
     const unit = UNITS.has(nodes.unit.value) ? nodes.unit.value : "item";
     const existing = store.list.items.find((item) =>
-      !item.completed && item.unit === unit && item.name.toLocaleLowerCase() === valid.name.toLocaleLowerCase());
+      !item.completed && item.name.toLocaleLowerCase() === valid.name.toLocaleLowerCase());
     const item = addListItem({ ...valid, unit });
     commit(existing ? `Added more ${item.name} to your list!` : `Added ${item.name} to your list!`);
 
@@ -1302,6 +1437,62 @@ function init() {
   nodes.emptyAdd.addEventListener("click", () => {
     nodes.name.focus();
     nodes.name.scrollIntoView({ behavior: "smooth", block: "center" });
+  });
+  nodes.shareList.addEventListener("click", async () => {
+    const text = shoppingListText(store.list.items);
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: "Piko shopping list", text });
+        showFeedback("Shopping list shared.");
+      } else if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text);
+        showFeedback("Sharing is unavailable here, so the list was copied instead.");
+      } else {
+        showFeedback("Sharing is unavailable in this browser.", "error");
+      }
+    } catch (error) {
+      if (error?.name !== "AbortError") showFeedback("The list could not be shared.", "error");
+    }
+  });
+
+  nodes.downloadListImage.addEventListener("click", () => {
+    const items = store.list.items.slice(0, 100);
+    const canvas = document.createElement("canvas");
+    const width = 1080;
+    const height = 220 + items.length * 58;
+    const scale = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = width * scale;
+    canvas.height = height * scale;
+    const context = canvas.getContext("2d");
+    context.scale(scale, scale);
+    context.fillStyle = "#fbf9ff";
+    context.fillRect(0, 0, width, height);
+    context.fillStyle = "#2d2840";
+    context.font = "700 48px system-ui, sans-serif";
+    context.fillText("Piko shopping list", 64, 82);
+    context.fillStyle = "#756f86";
+    context.font = "26px system-ui, sans-serif";
+    context.fillText(`${items.length} ${items.length === 1 ? "item" : "items"}`, 64, 126);
+    items.forEach((item, index) => {
+      const y = 190 + index * 58;
+      context.fillStyle = item.completed ? "#9690a4" : "#2d2840";
+      context.font = "30px system-ui, sans-serif";
+      context.fillText(`${item.completed ? "✓" : "•"} ${item.name}`, 64, y);
+      context.fillStyle = "#756f86";
+      context.font = "24px system-ui, sans-serif";
+      context.textAlign = "right";
+      context.fillText(`${formatAmount(item.quantity, item.unit)} · ${item.category}`, width - 64, y);
+      context.textAlign = "left";
+    });
+    canvas.toBlob((blob) => {
+      if (!blob) return showFeedback("The image could not be created.", "error");
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "piko-shopping-list.png";
+      link.click();
+      window.setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+      showFeedback("Shopping list image downloaded.");
+    }, "image/png");
   });
   nodes.clearCompleted.addEventListener("click", () => {
     const count = store.list.items.filter((item) => item.completed).length;

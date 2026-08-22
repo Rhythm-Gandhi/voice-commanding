@@ -5,8 +5,8 @@ import vm from "node:vm";
 
 const context = vm.createContext({ Intl });
 const source = readFileSync(new URL("./app.js", import.meta.url), "utf8");
-vm.runInContext(`${source}\nglobalThis.testApi = { CATALOG, buildRecommendations, categorizeItem, createDemoHistory, createEmptyStore, getSubstitutes, normalizeItemName, parseCatalogSearch, parseCommand, parseQuantity, productListItem, searchCatalog, speechLanguage, validHistoryEvent, validateItemName };`, context);
-const { CATALOG, buildRecommendations, categorizeItem, createDemoHistory, createEmptyStore, getSubstitutes, normalizeItemName, parseCatalogSearch, parseCommand, parseQuantity, productListItem, searchCatalog, speechLanguage, validHistoryEvent, validateItemName } = context.testApi;
+vm.runInContext(`${source}\nglobalThis.testApi = { CATALOG, buildRecommendations, categorizeItem, createDemoHistory, createEmptyStore, dedupeItems, getSubstitutes, normalizeItemName, parseCatalogSearch, parseCommand, parseQuantity, productListItem, searchCatalog, shoppingListText, speechLanguage, validHistoryEvent, validateItemName };`, context);
+const { CATALOG, buildRecommendations, categorizeItem, createDemoHistory, createEmptyStore, dedupeItems, getSubstitutes, normalizeItemName, parseCatalogSearch, parseCommand, parseQuantity, productListItem, searchCatalog, shoppingListText, speechLanguage, validHistoryEvent, validateItemName } = context.testApi;
 const plain = (value) => JSON.parse(JSON.stringify(value));
 const DAY_MS = 86_400_000;
 
@@ -31,6 +31,14 @@ test("assigns common items without substring false positives", () => {
   assert.equal(categorizeItem("steak"), "Other");
 });
 
+test("sorts expanded grocery categories using specific phrases first", () => {
+  assert.equal(categorizeItem("soy sauce"), "Asian Pantry");
+  assert.equal(categorizeItem("frozen peas"), "Frozen");
+  assert.equal(categorizeItem("salmon"), "Meat & Seafood");
+  assert.equal(categorizeItem("toothpaste"), "Personal Care");
+  assert.equal(categorizeItem("dish soap"), "Household");
+});
+
 test("accepts only supported quantities", () => {
   assert.equal(parseQuantity("2.5"), 2.5);
   assert.equal(parseQuantity(0), null);
@@ -45,6 +53,16 @@ test("starts with an extensible, empty versioned store", () => {
     history: [],
     preferences: {}
   });
+});
+
+test("merges active duplicate names even when their units differ", () => {
+  const items = plain(dedupeItems([
+    { name: "Milk", quantity: 2, unit: "pack", completed: false, updatedAt: "2026-01-01T00:00:00.000Z" },
+    { name: "milk", quantity: 1, unit: "item", completed: false, updatedAt: "2026-01-02T00:00:00.000Z" }
+  ]));
+  assert.equal(items.length, 1);
+  assert.equal(items[0].quantity, 3);
+  assert.equal(items[0].unit, "pack");
 });
 
 test("understands varied English add phrases and units", () => {
@@ -81,6 +99,22 @@ test("parses multiple English items in one command", () => {
     { name: "Milk", quantity: 2, unit: "bottle" },
     { name: "Apples", quantity: 5, unit: "item" }
   ]);
+});
+
+test("filters speech fillers and separates natural space-delimited groceries", () => {
+  assert.deepEqual(plain(parseCommand("umm add onion spinach milk you know", "en-IN")).items, [
+    { name: "Onion", quantity: 1, unit: "item" },
+    { name: "Spinach", quantity: 1, unit: "item" },
+    { name: "Milk", quantity: 1, unit: "item" }
+  ]);
+  assert.deepEqual(plain(parseCommand("उम्म प्याज पालक दूध जोड़ो", "hi-IN")).items.map(({ name }) => name), ["प्याज", "पालक", "दूध"]);
+  assert.deepEqual(plain(parseCommand("eh añade cebolla espinaca leche por favor", "es-ES")).items.map(({ name }) => name), ["Cebolla", "Espinaca", "Leche"]);
+});
+
+test("suggests deterministic grocery spelling corrections", () => {
+  const items = plain(parseCommand("Add onoin spinach milk", "en-IN")).items;
+  assert.deepEqual(items[0], { name: "Onion", quantity: 1, unit: "item", correction: { from: "onoin", to: "onion" } });
+  assert.equal(items.length, 3);
 });
 
 test("distinguishes English remove, set, increment, and future intents", () => {
@@ -207,8 +241,17 @@ test("returns unavailable products with substitutes", () => {
 
 test("maps a search result into the existing list and history payload", () => {
   const product = CATALOG.find(({ id }) => id === "toothpaste-colgate");
-  assert.deepEqual(plain(productListItem(product)), { name: "Colgate Total Toothpaste", quantity: 1, unit: "item", category: "Household" });
+  assert.deepEqual(plain(productListItem(product)), { name: "Colgate Total Toothpaste", quantity: 1, unit: "item", category: "Personal Care" });
   const event = validHistoryEvent({ ...productListItem(product), type: "added", at: "2026-08-22T12:00:00Z" });
   assert.equal(event.name, "Colgate Total Toothpaste");
-  assert.equal(event.category, "Household");
+  assert.equal(event.category, "Personal Care");
+});
+
+test("creates a grouped plain-text list for sharing", () => {
+  const text = shoppingListText([
+    { name: "Onion", quantity: 1, unit: "item", category: "Produce", completed: false },
+    { name: "Milk", quantity: 2, unit: "pack", category: "Dairy", completed: true }
+  ]);
+  assert.match(text, /Produce[\s\S]*• Onion — 1 item/u);
+  assert.match(text, /Dairy[\s\S]*✓ Milk — 2 packs/u);
 });

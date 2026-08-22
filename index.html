@@ -15,7 +15,7 @@
     <title>Piko - Your shopping companion</title>
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Ctext y='.9em' font-size='90'%3E🛒%3C/text%3E%3C/svg%3E">
     <link rel="stylesheet" href="styles.css">
-    <script type="module" src="app.js?v=20260823-2"></script>
+    <script type="module" src="app.js?v=20260823-3"></script>
   </head>
   <body data-app-state="loading">
     <div class="ambient ambient-one" aria-hidden="true"></div>
@@ -73,7 +73,7 @@
               <button type="submit">Send <span aria-hidden="true">→</span></button>
             </div>
           </form>
-          <p class="command-hint">Try add, remove, quantity, clear, search, or suggestion commands.</p>
+          <p class="command-hint">Try “add onion spinach milk,” remove, quantity, search, or suggestion commands.</p>
         </div>
         <div class="mic-wrap">
           <span class="mic-ring" aria-hidden="true"></span>
@@ -168,6 +168,8 @@
             </div>
             <div class="list-actions">
               <span id="list-summary" class="summary-badge">0 items</span>
+              <button id="share-list" class="secondary-button list-tool-button" type="button">Share</button>
+              <button id="download-list-image" class="secondary-button list-tool-button" type="button">Save image</button>
               <button id="clear-completed" class="text-button" type="button" hidden>Clear checked</button>
             </div>
           </div>

@@ -703,6 +703,12 @@ h1 {
   justify-content: flex-end;
 }
 
+.list-tool-button {
+  min-height: 36px;
+  padding: 0 11px;
+  font-size: 0.75rem;
+}
+
 .summary-badge {
   padding: 7px 10px;
   color: var(--primary-dark);

@@ -188,6 +188,46 @@
           <div id="category-groups" class="category-groups" aria-live="polite"></div>
         </section>
       </div>
+
+      <section id="recommendations" class="recommendations-card" aria-labelledby="recommendations-title">
+        <div class="section-heading recommendation-heading">
+          <div>
+            <p class="eyebrow">Local, explainable suggestions</p>
+            <h2 id="recommendations-title">A smarter next basket</h2>
+            <p id="history-summary" class="recommendation-intro">Add items over time to teach Piko your routine.</p>
+          </div>
+          <div class="data-actions">
+            <button id="load-demo-history" class="secondary-button" type="button">Load demo history</button>
+            <button id="clear-list-data" class="text-button" type="button">Clear list</button>
+            <button id="clear-history-data" class="text-button" type="button">Clear history</button>
+            <button id="reset-all-data" class="text-button danger-button" type="button">Reset all data</button>
+          </div>
+        </div>
+        <p id="demo-note" class="demo-note" hidden><strong>Demo mode:</strong> Clearly labelled sample history is active. Prices, availability, seasons, and sales below are demonstration catalog data.</p>
+
+        <div class="recommendation-sections">
+          <details class="recommendation-group" open>
+            <summary><span>💛</span><span><strong>Your regulars</strong><small>Things you add often—not predictions</small></span></summary>
+            <div id="regular-suggestions" class="suggestion-grid"></div>
+          </details>
+          <details class="recommendation-group" open>
+            <summary><span>✨</span><span><strong>You might need these</strong><small>Due based on your repeat timing</small></span></summary>
+            <div id="likely-suggestions" class="suggestion-grid"></div>
+          </details>
+          <details class="recommendation-group">
+            <summary><span>☀️</span><span><strong>Seasonal picks</strong><small>Curated locally for this time of year</small></span></summary>
+            <div id="seasonal-suggestions" class="suggestion-grid"></div>
+          </details>
+          <details class="recommendation-group">
+            <summary><span>🏷️</span><span><strong>Deals you may like</strong><small>Demonstration catalog—not live retailer pricing</small></span></summary>
+            <div id="deal-suggestions" class="suggestion-grid"></div>
+          </details>
+          <details class="recommendation-group">
+            <summary><span>🔄</span><span><strong>Alternatives</strong><small>Curated substitutes for unavailable catalog items</small></span></summary>
+            <div id="alternative-suggestions" class="suggestion-grid"></div>
+          </details>
+        </div>
+      </section>
     </main>
 
     <div id="feedback" class="feedback" role="status" aria-live="polite" hidden>

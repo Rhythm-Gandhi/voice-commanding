@@ -2,6 +2,20 @@ const STORAGE_KEY = "piko:shopping:v1";
 const MAX_NAME_LENGTH = 60;
 const MIN_QUANTITY = 0.25;
 const MAX_QUANTITY = 999;
+const DAY_MS = 86_400_000;
+
+const CATALOG = [
+  { name: "Milk", category: "Dairy", price: 3.49, salePrice: null, seasonalMonths: [], available: false, substitutes: ["Oat milk", "Almond milk", "Soy milk"] },
+  { name: "Bread", category: "Bakery", price: 2.79, salePrice: 2.29, seasonalMonths: [], available: true, substitutes: ["Whole wheat bread", "Tortillas"] },
+  { name: "Eggs", category: "Dairy", price: 3.99, salePrice: 3.49, seasonalMonths: [], available: true, substitutes: ["Tofu", "Egg substitute"] },
+  { name: "Mangoes", category: "Produce", price: 4.49, salePrice: 3.49, seasonalMonths: [3, 4, 5, 6, 7], available: true, substitutes: ["Peaches", "Pineapple"] },
+  { name: "Watermelon", category: "Produce", price: 5.99, salePrice: null, seasonalMonths: [4, 5, 6, 7, 8], available: true, substitutes: ["Muskmelon"] },
+  { name: "Oranges", category: "Produce", price: 4.29, salePrice: 3.59, seasonalMonths: [11, 0, 1, 2], available: true, substitutes: ["Mandarins"] },
+  { name: "Hot chocolate", category: "Beverages", price: 4.99, salePrice: 3.99, seasonalMonths: [10, 11, 0, 1], available: true, substitutes: ["Cocoa powder"] },
+  { name: "Oat milk", category: "Dairy", price: 4.29, salePrice: 3.79, seasonalMonths: [], available: true, substitutes: ["Almond milk", "Soy milk"] },
+  { name: "Almond milk", category: "Dairy", price: 4.19, salePrice: null, seasonalMonths: [], available: true, substitutes: ["Oat milk", "Soy milk"] },
+  { name: "Soy milk", category: "Dairy", price: 3.99, salePrice: null, seasonalMonths: [], available: true, substitutes: ["Oat milk", "Almond milk"] }
+];
 
 const CATEGORIES = {
   Produce: { icon: "🥬", keywords: ["apple", "banana", "orange", "grape", "lemon", "lime", "mango", "berry", "berries", "tomato", "potato", "onion", "garlic", "carrot", "spinach", "lettuce", "broccoli", "cucumber", "avocado", "fruit", "vegetable", "coriander", "cilantro", "सेब", "केला", "केले", "संतरा", "आलू", "प्याज", "manzana", "manzanas", "plátano", "plátanos", "naranja", "naranjas", "patata", "cebolla"] },
@@ -73,6 +87,115 @@ function categorizeItem(value) {
 
 function createEmptyStore() {
   return { version: 1, list: { items: [] }, history: [], preferences: {} };
+}
+
+function itemKey(value) {
+  return normalizeItemName(value).toLocaleLowerCase();
+}
+
+function sessionKey(value) {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? "" : `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}
+
+function validHistoryEvent(event) {
+  if (!event || typeof event !== "object" || !["added", "completed", "removed"].includes(event.type)) return null;
+  const name = normalizeItemName(event.name);
+  const at = new Date(event.at);
+  const quantity = parseQuantity(event.quantity ?? 1);
+  if (validateItemName(name) || Number.isNaN(at.getTime()) || quantity === null) return null;
+  return {
+    id: typeof event.id === "string" ? event.id : `${at.getTime()}-${itemKey(name)}-${event.type}`,
+    name,
+    category: categorizeItem(name),
+    quantity,
+    unit: UNITS.has(event.unit) ? event.unit : "item",
+    type: event.type,
+    at: at.toISOString(),
+    session: sessionKey(at),
+    demo: Boolean(event.demo)
+  };
+}
+
+function purchaseSummary(history) {
+  const summaries = new Map();
+  for (const event of history) {
+    if (event.type !== "added") continue;
+    const key = itemKey(event.name);
+    const summary = summaries.get(key) ?? { key, name: event.name, category: event.category, additions: 0, sessions: new Map() };
+    summary.additions += 1;
+    const time = new Date(event.at).getTime();
+    if (!summary.sessions.has(event.session) || time > summary.sessions.get(event.session)) summary.sessions.set(event.session, time);
+    summaries.set(key, summary);
+  }
+  return [...summaries.values()].map((summary) => ({ ...summary, sessionTimes: [...summary.sessions.values()].sort((a, b) => a - b) }));
+}
+
+function median(values) {
+  if (!values.length) return 0;
+  const sorted = [...values].sort((a, b) => a - b);
+  const middle = Math.floor(sorted.length / 2);
+  return sorted.length % 2 ? sorted[middle] : (sorted[middle - 1] + sorted[middle]) / 2;
+}
+
+function getSubstitutes(name, catalog = CATALOG) {
+  const product = catalog.find((entry) => itemKey(entry.name) === itemKey(name));
+  if (!product) return [];
+  return product.substitutes.map((substitute) => catalog.find((entry) => itemKey(entry.name) === itemKey(substitute)) ?? { name: substitute, category: product.category, available: true });
+}
+
+function buildRecommendations(history, activeItems = [], dismissed = [], now = new Date(), catalog = CATALOG) {
+  const summaries = purchaseSummary(history);
+  const blocked = new Set([...activeItems.map(({ name }) => itemKey(name)), ...dismissed]);
+  const byKey = new Map(summaries.map((summary) => [summary.key, summary]));
+  const regulars = summaries
+    .filter(({ additions, key }) => additions >= 2 && !blocked.has(key))
+    .sort((a, b) => b.additions - a.additions || b.sessionTimes.at(-1) - a.sessionTimes.at(-1))
+    .slice(0, 4)
+    .map((item) => ({ ...item, reason: `Added ${item.additions} times across ${item.sessionTimes.length} shopping days.` }));
+
+  const likely = summaries.map((item) => {
+    if (item.sessionTimes.length < 2 || blocked.has(item.key)) return null;
+    const intervals = item.sessionTimes.slice(1).map((time, index) => (time - item.sessionTimes[index]) / DAY_MS).filter((days) => days > 0);
+    const typicalDays = median(intervals);
+    const daysSince = (now.getTime() - item.sessionTimes.at(-1)) / DAY_MS;
+    if (!typicalDays || daysSince < Math.max(1, typicalDays * 0.75)) return null;
+    const dueRatio = Math.min(daysSince / typicalDays, 2);
+    const score = Math.min(item.additions, 5) * 0.4 + dueRatio * 2 + Math.min(item.sessionTimes.length, 4) * 0.25;
+    const reason = daysSince >= typicalDays
+      ? `It has been about as long as your usual ${Math.round(typicalDays)}-day restock interval.`
+      : `Your usual ${Math.round(typicalDays)}-day restock time is approaching.`;
+    return { ...item, score, typicalDays, daysSince, reason };
+  }).filter(Boolean).sort((a, b) => b.score - a.score).slice(0, 4);
+
+  const seasonal = catalog
+    .filter((product) => product.available && product.seasonalMonths.includes(now.getMonth()) && !blocked.has(itemKey(product.name)))
+    .slice(0, 4)
+    .map((product) => ({ ...product, key: itemKey(product.name), reason: "A curated pick for this time of year." }));
+  const deals = catalog
+    .filter((product) => product.available && product.salePrice && !blocked.has(itemKey(product.name)))
+    .sort((a, b) => (byKey.get(itemKey(b.name))?.additions ?? 0) - (byKey.get(itemKey(a.name))?.additions ?? 0) || (a.salePrice / a.price) - (b.salePrice / b.price))
+    .slice(0, 4)
+    .map((product) => ({ ...product, key: itemKey(product.name), reason: byKey.has(itemKey(product.name)) ? "On demo sale and matches your history." : "On sale in the demonstration catalog." }));
+  const alternatives = catalog
+    .filter((product) => !product.available && byKey.has(itemKey(product.name)) && !blocked.has(itemKey(product.name)))
+    .flatMap((product) => getSubstitutes(product.name, catalog).map((substitute) => ({ ...substitute, key: itemKey(substitute.name), forName: product.name, reason: `${product.name} is marked unavailable in the demo catalog.` })))
+    .filter((product) => !blocked.has(product.key)).slice(0, 4);
+  return { regulars, likely, seasonal, deals, alternatives };
+}
+
+function createDemoHistory(now = new Date()) {
+  const patterns = [
+    ["Milk", "Dairy", [35, 28, 21, 14, 7]],
+    ["Bread", "Bakery", [32, 24, 16, 8]],
+    ["Eggs", "Dairy", [42, 28, 14]],
+    ["Apples", "Produce", [18, 9, 1]]
+  ];
+  return patterns.flatMap(([name, category, days]) => days.map((daysAgo, index) => {
+    const at = new Date(now.getTime() - daysAgo * DAY_MS);
+    at.setHours(10, index, 0, 0);
+    return { id: `demo-${itemKey(name)}-${daysAgo}`, name, category, quantity: 1, unit: "item", type: "added", at: at.toISOString(), session: sessionKey(at), demo: true };
+  }));
 }
 
 function capitalize(value) {
@@ -208,10 +331,18 @@ function parseCommand(value, recognitionLanguage = "en-US") {
   };
   if (clearPatterns[language].test(text)) return commandResult("clear", language);
 
+  const substitutePatterns = {
+    en: /^(?:what(?:'s| is) (?:an )?alternative to|suggest (?:an )?alternative to|alternative to|substitute for)\s+(.+)$/u,
+    hi: /^(.+?)\s+(?:का|की|के)\s+(?:विकल्प|बदला)(?:\s+क्या\s+है)?$/u,
+    es: /^(?:alternativa a|sustituto de|sugiere una alternativa a)\s+(.+)$/u
+  };
+  const substituteMatch = text.match(substitutePatterns[language]);
+  if (substituteMatch) return commandResult("substitute", language, { query: capitalize(cleanItemName(substituteMatch[1], language)) });
+
   const suggestionPatterns = {
-    en: /(?:suggest|recommend|what should i buy)/u,
-    hi: /(?:सुझाव|क्या\s+खरीद)/u,
-    es: /(?:sugiere|recomienda|qué\s+debo\s+comprar|que\s+debo\s+comprar)/u
+    en: /(?:suggest|recommend|what should i buy|what do i usually buy|what might i need|running low)/u,
+    hi: /(?:सुझाव|क्या\s+खरीद|अक्सर\s+क्या|क्या\s+चाहिए|कम\s+हो)/u,
+    es: /(?:sugiere|recomienda|qué\s+debo\s+comprar|que\s+debo\s+comprar|qué\s+suelo\s+comprar|que\s+suelo\s+comprar|qué\s+necesito|que\s+necesito)/u
   };
   if (suggestionPatterns[language].test(text)) return commandResult("suggestion", language);
 
@@ -337,6 +468,18 @@ function init() {
     emptyAdd: document.querySelector("#empty-add-button"),
     summary: document.querySelector("#list-summary"),
     clearCompleted: document.querySelector("#clear-completed"),
+    recommendations: document.querySelector("#recommendations"),
+    historySummary: document.querySelector("#history-summary"),
+    demoNote: document.querySelector("#demo-note"),
+    regularSuggestions: document.querySelector("#regular-suggestions"),
+    likelySuggestions: document.querySelector("#likely-suggestions"),
+    seasonalSuggestions: document.querySelector("#seasonal-suggestions"),
+    dealSuggestions: document.querySelector("#deal-suggestions"),
+    alternativeSuggestions: document.querySelector("#alternative-suggestions"),
+    loadDemoHistory: document.querySelector("#load-demo-history"),
+    clearListData: document.querySelector("#clear-list-data"),
+    clearHistoryData: document.querySelector("#clear-history-data"),
+    resetAllData: document.querySelector("#reset-all-data"),
     feedback: document.querySelector("#feedback"),
     editDialog: document.querySelector("#edit-dialog"),
     editForm: document.querySelector("#edit-form"),
@@ -447,7 +590,7 @@ function init() {
       return {
         version: 1,
         list: { items },
-        history: Array.isArray(parsed.history) ? parsed.history : [],
+        history: Array.isArray(parsed.history) ? parsed.history.map(validHistoryEvent).filter(Boolean).slice(-500) : [],
         preferences: parsed.preferences && typeof parsed.preferences === "object" ? parsed.preferences : {}
       };
     } catch {
@@ -466,14 +609,23 @@ function init() {
     }
   }
 
-  function itemKey(value) {
-    return normalizeItemName(value).toLocaleLowerCase();
-  }
-
   function findItem(name) {
     const key = itemKey(name);
     return store.list.items.find((item) => itemKey(item.name) === key)
       ?? store.list.items.find((item) => itemKey(item.name).replace(/(?:es|s)$/u, "") === key.replace(/(?:es|s)$/u, ""));
+  }
+
+  function recordHistory(item, type, at = new Date()) {
+    const event = validHistoryEvent({
+      id: crypto.randomUUID(),
+      name: item.name,
+      category: item.category,
+      quantity: item.quantity,
+      unit: item.unit,
+      type,
+      at: at.toISOString()
+    });
+    if (event) store.history = [...store.history, event].slice(-500);
   }
 
   function addListItem({ name, quantity, unit }) {
@@ -481,6 +633,7 @@ function init() {
     if (existing && existing.quantity + quantity <= MAX_QUANTITY) {
       existing.quantity = Math.round((existing.quantity + quantity) * 100) / 100;
       existing.updatedAt = new Date().toISOString();
+      recordHistory({ ...existing, quantity }, "added");
       return existing;
     }
 
@@ -496,6 +649,7 @@ function init() {
       updatedAt: now
     };
     store.list.items.push(item);
+    recordHistory(item, "added");
     return item;
   }
 
@@ -511,6 +665,7 @@ function init() {
       const found = parsed.items.map(({ name }) => findItem(name)).filter(Boolean);
       if (!found.length) return { ok: false, message: `I couldn't find ${parsed.items.map(({ name }) => name).join(", ")} on your list.` };
       const ids = new Set(found.map(({ id }) => id));
+      found.forEach((item) => recordHistory(item, "removed"));
       store.list.items = store.list.items.filter(({ id }) => !ids.has(id));
       saveStore();
       render();
@@ -539,6 +694,7 @@ function init() {
     if (parsed.intent === "clear") {
       const count = store.list.items.length;
       if (!count) return { ok: true, message: actionMessage(parsed.language, "empty") };
+      store.list.items.forEach((item) => recordHistory(item, "removed"));
       store.list.items = [];
       saveStore();
       render();
@@ -549,7 +705,20 @@ function init() {
       return { ok: true, placeholder: true, message: `I heard your search for ${parsed.query}. Product search arrives in Phase 4.` };
     }
 
-    return { ok: true, placeholder: true, message: "Smart suggestions arrive in Phase 3. Your request is understood and ready for that feature." };
+    if (parsed.intent === "substitute") {
+      const substitutes = getSubstitutes(parsed.query);
+      if (!substitutes.length) return { ok: false, message: `I don't have a curated alternative for ${parsed.query} yet.` };
+      store.preferences.requestedSubstitute = parsed.query;
+      saveStore();
+      render();
+      nodes.recommendations.scrollIntoView({ behavior: "smooth", block: "start" });
+      return { ok: true, message: `Try ${substitutes.map(({ name }) => name).join(", ")} instead of ${parsed.query}.` };
+    }
+
+    const recommendations = buildRecommendations(store.history, store.list.items, store.preferences.dismissedSuggestions ?? []);
+    const count = recommendations.likely.length || recommendations.regulars.length;
+    nodes.recommendations.scrollIntoView({ behavior: "smooth", block: "start" });
+    return { ok: true, message: count ? `I found ${count} history-based suggestion${count === 1 ? "" : "s"}. See why below.` : "I need a little more shopping history first. You can load the clearly labelled demo history below." };
   }
 
   async function handleCommand(rawCommand, source) {
@@ -705,6 +874,59 @@ function init() {
     return card;
   }
 
+  function makeSuggestionCard(item, type) {
+    const card = element("article", "suggestion-card");
+    card.dataset.name = item.name;
+    card.dataset.type = type;
+    card.append(element("h3", "", item.name), element("p", "suggestion-reason", item.reason));
+    if (item.salePrice) {
+      const price = element("p", "suggestion-price");
+      const oldPrice = element("s", "", `$${item.price.toFixed(2)}`);
+      price.append(oldPrice, document.createTextNode(`$${item.salePrice.toFixed(2)} demo sale`));
+      card.append(price);
+    }
+    const actions = element("div", "suggestion-actions");
+    const add = element("button", "secondary-button", "＋ Add");
+    add.type = "button";
+    add.dataset.action = "add-suggestion";
+    const dismiss = element("button", "text-button", "Dismiss");
+    dismiss.type = "button";
+    dismiss.dataset.action = "dismiss-suggestion";
+    dismiss.setAttribute("aria-label", `Dismiss ${item.name} suggestion`);
+    actions.append(add, dismiss);
+    card.append(actions);
+    return card;
+  }
+
+  function fillSuggestionGrid(node, items, type, emptyMessage) {
+    node.replaceChildren(...(items.length
+      ? items.map((item) => makeSuggestionCard(item, type))
+      : [element("p", "empty-suggestions", emptyMessage)]));
+  }
+
+  function renderRecommendations() {
+    const added = store.history.filter(({ type }) => type === "added");
+    const sessions = new Set(added.map(({ session }) => session));
+    nodes.historySummary.textContent = added.length
+      ? `Learning from ${added.length} addition${added.length === 1 ? "" : "s"} across ${sessions.size} shopping day${sessions.size === 1 ? "" : "s"}.`
+      : "Add items over time to teach Piko your routine, or load explicit demo history.";
+    nodes.demoNote.hidden = !store.preferences.demoHistory;
+    nodes.loadDemoHistory.textContent = store.preferences.demoHistory ? "Reload demo history" : "Load demo history";
+    const recommendations = buildRecommendations(store.history, store.list.items, store.preferences.dismissedSuggestions ?? []);
+    const requested = store.preferences.requestedSubstitute;
+    if (requested) {
+      const existing = new Set(recommendations.alternatives.map(({ key }) => key));
+      recommendations.alternatives.push(...getSubstitutes(requested)
+        .filter(({ name }) => !existing.has(itemKey(name)))
+        .map((item) => ({ ...item, key: itemKey(item.name), forName: requested, reason: `You asked for an alternative to ${requested}.` })));
+    }
+    fillSuggestionGrid(nodes.regularSuggestions, recommendations.regulars, "regular", "No regulars yet. An item appears here after two additions.");
+    fillSuggestionGrid(nodes.likelySuggestions, recommendations.likely, "likely", "Nothing is due yet. Recently added items are intentionally held back.");
+    fillSuggestionGrid(nodes.seasonalSuggestions, recommendations.seasonal, "seasonal", "No curated seasonal picks for this month.");
+    fillSuggestionGrid(nodes.dealSuggestions, recommendations.deals, "deal", "No demonstration deals are available.");
+    fillSuggestionGrid(nodes.alternativeSuggestions, recommendations.alternatives, "alternative", "Alternatives appear when a history item is unavailable in the demo catalog.");
+  }
+
   function render() {
     const items = store.list.items;
     const completed = items.filter((item) => item.completed).length;
@@ -729,6 +951,7 @@ function init() {
       section.append(header, grid);
       nodes.groups.append(section);
     }
+    renderRecommendations();
   }
 
   function commit(message, tone = "success") {
@@ -783,6 +1006,7 @@ function init() {
     if (!item) return;
 
     if (button.dataset.action === "remove") {
+      recordHistory(item, "removed");
       store.list.items = store.list.items.filter(({ id }) => id !== item.id);
       commit(`Removed ${item.name} from your list.`);
       return;
@@ -813,6 +1037,7 @@ function init() {
     if (!item) return;
     item.completed = event.target.checked;
     item.updatedAt = new Date().toISOString();
+    if (item.completed) recordHistory(item, "completed");
     commit(`${item.name} marked ${item.completed ? "complete" : "not complete"}.`);
   });
 
@@ -846,8 +1071,61 @@ function init() {
   });
   nodes.clearCompleted.addEventListener("click", () => {
     const count = store.list.items.filter((item) => item.completed).length;
+    store.list.items.filter((item) => item.completed).forEach((item) => recordHistory(item, "removed"));
     store.list.items = store.list.items.filter((item) => !item.completed);
     commit(`Cleared ${count} checked ${count === 1 ? "item" : "items"}.`);
+  });
+
+  nodes.recommendations.addEventListener("click", (event) => {
+    const button = event.target.closest("button[data-action]");
+    const card = button?.closest(".suggestion-card");
+    if (!button || !card) return;
+    const name = card.dataset.name;
+    if (button.dataset.action === "add-suggestion") {
+      const item = addListItem({ name, quantity: 1, unit: "item" });
+      commit(`Added ${item.name} from your suggestions.`);
+      return;
+    }
+    const dismissed = new Set(store.preferences.dismissedSuggestions ?? []);
+    dismissed.add(itemKey(name));
+    store.preferences.dismissedSuggestions = [...dismissed];
+    commit(`Dismissed ${name}.`);
+  });
+
+  nodes.loadDemoHistory.addEventListener("click", () => {
+    store.history = store.history.filter(({ demo }) => !demo).concat(createDemoHistory());
+    store.preferences.demoHistory = true;
+    store.preferences.dismissedSuggestions = [];
+    commit("Demo shopping history loaded. Suggestions are ready to explore.");
+  });
+
+  nodes.clearListData.addEventListener("click", () => {
+    if (!store.list.items.length) return showFeedback("Your shopping list is already empty.");
+    if (!window.confirm("Clear every item from your current shopping list? Your history will remain.")) return;
+    store.list.items.forEach((item) => recordHistory(item, "removed"));
+    store.list.items = [];
+    commit("Shopping list cleared. Your history was kept.");
+  });
+
+  nodes.clearHistoryData.addEventListener("click", () => {
+    if (!store.history.length) return showFeedback("Your shopping history is already empty.");
+    if (!window.confirm("Clear shopping history and dismissed suggestions? Your current list will remain.")) return;
+    store.history = [];
+    delete store.preferences.demoHistory;
+    delete store.preferences.dismissedSuggestions;
+    delete store.preferences.requestedSubstitute;
+    commit("Shopping history cleared. Your current list was kept.");
+  });
+
+  nodes.resetAllData.addEventListener("click", () => {
+    if (!window.confirm("Reset the shopping list, history, preferences, and demo data? This cannot be undone.")) return;
+    store = createEmptyStore();
+    localStorage.removeItem(STORAGE_KEY);
+    nodes.language.value = "en-US";
+    nodes.spokenFeedback.checked = true;
+    nodes.commandInput.placeholder = "Try “Add 2 bottles of milk”";
+    render();
+    showFeedback("All local Piko data was reset.");
   });
   nodes.name.addEventListener("input", () => {
     nodes.name.removeAttribute("aria-invalid");

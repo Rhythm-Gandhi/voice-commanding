@@ -5,9 +5,14 @@ import vm from "node:vm";
 
 const context = vm.createContext({ Intl });
 const source = readFileSync(new URL("./app.js", import.meta.url), "utf8");
-vm.runInContext(`${source}\nglobalThis.testApi = { categorizeItem, createEmptyStore, normalizeItemName, parseCommand, parseQuantity, validateItemName };`, context);
-const { categorizeItem, createEmptyStore, normalizeItemName, parseCommand, parseQuantity, validateItemName } = context.testApi;
+vm.runInContext(`${source}\nglobalThis.testApi = { buildRecommendations, categorizeItem, createDemoHistory, createEmptyStore, getSubstitutes, normalizeItemName, parseCommand, parseQuantity, validHistoryEvent, validateItemName };`, context);
+const { buildRecommendations, categorizeItem, createDemoHistory, createEmptyStore, getSubstitutes, normalizeItemName, parseCommand, parseQuantity, validHistoryEvent, validateItemName } = context.testApi;
 const plain = (value) => JSON.parse(JSON.stringify(value));
+const DAY_MS = 86_400_000;
+
+function added(name, daysAgo, now = new Date("2026-06-30T12:00:00Z")) {
+  return validHistoryEvent({ name, quantity: 1, unit: "item", type: "added", at: new Date(now.getTime() - daysAgo * DAY_MS).toISOString() });
+}
 
 test("normalizes and validates item names", () => {
   assert.equal(normalizeItemName("  green   apples  "), "green apples");
@@ -90,4 +95,59 @@ test("parses Spanish add, multiple items, remove, and quantity commands", () => 
   assert.equal(parseCommand("Necesito huevos, pan y plátanos", "es-ES").items.length, 3);
   assert.equal(parseCommand("Quita leche de mi lista", "es-ES").intent, "remove");
   assert.deepEqual(plain(parseCommand("Cambia la cantidad de leche a tres botellas", "es-ES")).item, { name: "Leche", quantity: 3, unit: "bottle" });
+});
+
+test("frequent items remain regulars but a just-purchased item is not predicted", () => {
+  const now = new Date("2026-06-30T12:00:00Z");
+  const history = [added("Bread", 14, now), added("Bread", 7, now), added("Bread", 0, now)];
+  const recommendations = buildRecommendations(history, [], [], now);
+  assert.equal(recommendations.regulars[0].name, "Bread");
+  assert.equal(recommendations.likely.some(({ name }) => name === "Bread"), false);
+});
+
+test("a repeated item approaching its typical interval is predicted", () => {
+  const now = new Date("2026-06-30T12:00:00Z");
+  const history = [added("Eggs", 20, now), added("Eggs", 10, now), added("Coffee", 1, now)];
+  const recommendations = buildRecommendations(history, [], [], now);
+  assert.equal(recommendations.likely[0].name, "Eggs");
+  assert.equal(recommendations.likely.some(({ name }) => name === "Coffee"), false);
+});
+
+test("active and never-purchased items are excluded from history predictions", () => {
+  const now = new Date("2026-06-30T12:00:00Z");
+  const history = [added("Milk", 14, now), added("Milk", 7, now)];
+  const recommendations = buildRecommendations(history, [{ name: "Milk" }], [], now);
+  assert.equal(recommendations.likely.length, 0);
+  assert.equal(recommendations.regulars.length, 0);
+  assert.equal(recommendations.likely.some(({ name }) => name === "Bananas"), false);
+});
+
+test("seasonal picks use the curated month data", () => {
+  const recommendations = buildRecommendations([], [], [], new Date("2026-06-30T12:00:00Z"));
+  assert.equal(recommendations.seasonal.some(({ name }) => name === "Mangoes"), true);
+  assert.equal(recommendations.seasonal.some(({ name }) => name === "Hot chocolate"), false);
+});
+
+test("unavailable catalog products return curated substitutes", () => {
+  assert.deepEqual(plain(getSubstitutes("Milk")).map(({ name }) => name), ["Oat milk", "Almond milk", "Soy milk"]);
+  assert.deepEqual(plain(getSubstitutes("Bread")).map(({ name }) => name), ["Whole wheat bread", "Tortillas"]);
+});
+
+test("demo history is explicit, repeatable, and immediately useful", () => {
+  const now = new Date("2026-06-30T12:00:00Z");
+  const history = createDemoHistory(now);
+  assert.equal(history.every(({ demo }) => demo), true);
+  const recommendations = buildRecommendations(history, [], [], now);
+  assert.ok(recommendations.regulars.length);
+  assert.ok(recommendations.likely.length);
+  assert.ok(recommendations.alternatives.length);
+});
+
+test("understands broader suggestion requests in all supported languages", () => {
+  assert.equal(parseCommand("What am I running low on?", "en-US").intent, "suggestion");
+  assert.equal(parseCommand("मुझे क्या चाहिए", "hi-IN").intent, "suggestion");
+  assert.equal(parseCommand("¿Qué suelo comprar?", "es-ES").intent, "suggestion");
+  assert.deepEqual(plain(parseCommand("Suggest an alternative to milk", "en-US")), { ok: true, intent: "substitute", language: "en", query: "Milk" });
+  assert.equal(parseCommand("दूध का विकल्प क्या है", "hi-IN").intent, "substitute");
+  assert.equal(parseCommand("Alternativa a leche", "es-ES").intent, "substitute");
 });

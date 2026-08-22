@@ -1054,7 +1054,7 @@ function init() {
     checkbox.type = "checkbox";
     checkbox.checked = item.completed;
     checkbox.dataset.action = "toggle";
-    checkbox.setAttribute("aria-label", `${item.completed ? "Mark" : "Mark"} ${item.name} ${item.completed ? "not completed" : "completed"}`);
+    checkbox.setAttribute("aria-label", `Mark ${item.name} ${item.completed ? "not completed" : "completed"}`);
     const checkTarget = element("label", "item-check-target");
     checkTarget.append(checkbox);
 

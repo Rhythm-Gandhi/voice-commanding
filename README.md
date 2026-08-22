@@ -1,110 +1,103 @@
 # Piko - Voice Command Shopping Assistant
 
-Piko is a cheerful, mobile-first shopping companion built for a software engineering assessment. Phase 4 adds voice-activated local catalog search with no runtime dependencies or build step.
+Piko is a cheerful, mobile-first shopping list manager with multilingual voice commands, explainable recommendations, and structured product search. It is a zero-dependency static application built for the Voice Command Shopping Assistant technical assessment.
 
-## Currently implemented
+**Live application:** <https://rhythm-gandhi.github.io/voice-commanding/>
 
-- Add, edit, remove, complete, and clear shopping items
-- Increase, decrease, and directly specify quantities and units
-- Automatic grouping into Produce, Dairy, Bakery, Snacks, Beverages, Household, Pantry, and Other
-- Versioned localStorage persistence with damaged-data recovery
-- Responsive item cards, intentional empty/loading/success/error states, and a prepared voice-assistant panel
-- Semantic HTML, keyboard controls, visible focus states, reduced-motion support, and safe DOM rendering
-- Input normalization, validation, and reasonable limits
-- Native Web Speech API recognition with live transcript and clear listening, processing, success, and error states
-- One shared parser/action pipeline for spoken and typed commands
-- English, Hindi, and Spanish add, remove, quantity, multi-item, and clear commands
-- Local shopping history with added, completed, and removed timestamps grouped into calendar-day shopping sessions
-- Separate regular, likely-needed, seasonal, demonstration-deal, and substitute recommendations
-- Transparent reasons, direct add and dismiss controls, and active-list exclusion
-- Explicit optional demo history plus separate list, history, and full-data reset controls
-- Multilingual voice and typed suggestion requests
-- Structured product search by name, category, brand, price range, size, attributes, and availability
-- A varied local demonstration catalog with polished result, unavailable-product, substitute, sale, and no-result states
-- Direct add from product results through the existing list, history, categorization, and recommendation pipeline
-- Optional native spoken confirmation for successful voice actions
-- Microphone permission, timeout, no-speech, network, cancellation, and unsupported-browser handling
+**Repository:** <https://github.com/Rhythm-Gandhi/voice-commanding>
 
-## Planned
+## Features
 
-- Phase 5: final hardening, documentation, and deployment
+- Native voice recognition and typed fallback through one command pipeline
+- English, Hindi, and Spanish add, remove, quantity, search, substitute, and suggestion commands
+- Categorized shopping list with editing, completion, quantities, persistence, and clear/reset controls
+- Explainable regular, likely-needed, seasonal, demonstration-deal, and substitute recommendations
+- Optional, clearly labelled demo history for immediate evaluation
+- Structured local-catalog search by product, category, brand, price, size, attribute, and availability
+- Polished result, unavailable-product, substitute, sale, empty, loading, success, and error states
+- Accessible keyboard controls, visible focus, reduced-motion support, and responsive mobile design
+
+## Technology and architecture
+
+Piko uses semantic HTML, modern CSS, and browser-native JavaScript. There is no framework, package manager, build step, backend, database, external catalog, or retailer API.
+
+`app.js` contains pure deterministic parser, recommendation, and catalog-filter functions followed by the DOM application layer. Voice and typed input share `parseCommand()` and the same action executor. The versioned list, preferences, and bounded shopping history are stored in `localStorage`; search results remain temporary. User text is rendered with safe DOM APIs rather than HTML injection.
 
 ## Run locally
 
-The app has no install step. Serve this directory with any static server, for example:
-
 ```powershell
+cd "D:\unthinable voice command"
 python -m http.server 8000
 ```
 
-Then open <http://localhost:8000>. Directly opening `index.html` may also work, but a local server matches production behavior more closely.
+Open <http://localhost:8000>. No installation or environment variables are required.
 
-## Voice and typed commands
+## Voice requirements and languages
 
-Choose English, हिन्दी, or Español, then tap the microphone or enter the same phrase in the command field. Examples:
+Use a current Chrome or Edge release over HTTPS or localhost, allow microphone access, choose English, हिन्दी, or Español, and tap the microphone. Browser speech-recognition availability varies; typed commands always remain available. Depending on the browser, recognition may use a provider-managed remote service.
+
+Example commands:
 
 ```text
-Add 2 bottles of milk and 5 apples
+Add milk and bread
+I want to buy bananas
+Add 2 bottles of water
 Remove milk from my list
-Set apples to 3
-Add two more apples
+Change apples quantity to 10
+What am I running low on?
+Find Colgate toothpaste under $5
 दो बोतल दूध जोड़ो
-दूध की मात्रा तीन करो
-Añade dos botellas de leche
-Cambia la cantidad de leche a tres botellas
-```
-
-Suggestion examples include `What should I buy?`, `What do I usually buy?`, `What might I need?`, `मुझे क्या चाहिए`, and `¿Qué suelo comprar?`. Voice recognition availability and supported languages depend on the browser. Typed commands always use the same parser and remain available as a fallback.
-
-## Product search
-
-Product search extracts structured filters and combines them against the local demonstration catalog. Search results themselves are temporary; only products explicitly added to the list enter local list and history storage.
-
-```text
-Find organic apples
-Find toothpaste under 5 dollars
-Show me Dove products
-Find large bottles of water
-Show milk under $4
-Find organic fruit under $6
-Show me Colgate toothpaste
 दूध दिखाओ
+Añade dos botellas de leche
 Busca leche por debajo de $4
 ```
 
-Displayed prices, sales, availability, brands, sizes, seasonal details, and substitutes are curated demonstration data rather than live retailer information.
+## Recommendations and demo history
 
-## How predictions work
+Each local calendar day containing an addition is treated as a shopping session. For repeated products, Piko calculates the median interval between sessions. An item becomes prediction-eligible once 75% of its typical interval has passed, then ranks using capped frequency, due ratio, and repeat-session evidence. Recent, dismissed, never-purchased, and active-list items are excluded. Regulars remain frequency-based and separate from predictions.
 
-Piko treats each local calendar day with an addition as a shopping session. For every repeatedly added item it calculates the median number of days between sessions. An item becomes eligible when at least 75% of that typical interval has elapsed. Its ranking then combines capped addition frequency, how due it is, and repeat-session evidence. Items added very recently, already on the active list, dismissed by the user, or never purchased are excluded. “Your regulars” uses frequency only and is deliberately separate from this prediction.
+Select **Load demo history** to add explicitly labelled sample events for milk, bread, eggs, and apples. This immediately demonstrates regulars, due predictions, deals, and alternatives. **Clear list** keeps history, **Clear history** keeps the current list, and **Reset all data** removes list, history, preferences, and demo data after confirmation.
 
-Seasonal picks and sale prices come from a small curated demonstration catalog; they are not live retailer claims. Deals matching prior additions rank first. Alternatives are returned only when a previously added catalog product is marked unavailable and has curated substitutes.
+## Product search
 
-## Demo and reset
+Search commands extract independent filters and combine them against a 22-product local demonstration catalog. Sale prices are used for price filtering when applicable. Prices, sales, brands, availability, seasonal information, and substitutes are demonstration data, not live retailer claims. Adding a result routes through the existing list, history, categorization, and recommendation logic.
 
-Select **Load demo history** to add clearly labelled, relative sample events for milk, bread, eggs, and apples. The pattern immediately demonstrates regulars, due predictions, deal ranking, and milk alternatives without pretending the data belongs to the user. Reloading replaces only prior demo events and preserves genuine history.
+## Testing
 
-Use **Clear list** to keep history, **Clear history** to keep the current list, or **Reset all data** to remove the list, history, preferences, dismissed suggestions, and demo data. Each destructive action requires confirmation.
-
-## Test
-
-With a current Node.js release installed:
+Run the complete dependency-free test suite with a current Node.js release:
 
 ```powershell
 node --test app.test.mjs
 ```
 
-Manual checks should also cover demo loading, adding and dismissing recommendation cards, all reset confirmations, typed suggestion commands in all three languages, refresh persistence, keyboard navigation, and mobile widths.
+The suite covers validation, multilingual commands, quantities, recommendations, recency suppression, seasonal data, substitutes, structured search filters, no results, unavailable products, and search-result list/history integration.
 
-## Data and privacy
+## Privacy and security
 
-Piko stores one versioned record under `piko:shopping:v1` in the current browser's localStorage. Shopping history contains only item details, event type, and timestamps needed for recommendations; it contains no account or profile information. It does not intentionally record or store microphone audio. Browser speech recognition may rely on a browser or provider-managed remote recognition service. No environment variables or API keys are used.
+Piko stores only list data, preferences, and item-event history under `piko:shopping:v1` on the current device. It does not intentionally store microphone audio or collect account/profile data. Inputs are normalized and length-limited, microphone capture starts only from a user action, the page uses a restrictive Content Security Policy, and all local data can be reset from the UI. No secrets or API keys are required.
+
+## Known limitations
+
+- Speech recognition and language quality depend on browser/platform support and may require an online provider service.
+- Catalog, price, sale, season, availability, and substitute data are curated demonstrations rather than live inventory.
+- Multilingual parsing intentionally supports practical shopping phrases rather than unrestricted translation.
+- Predictions require repeated shopping days unless demo history is loaded.
+
+## Approach (200 words maximum)
+
+Piko uses a zero-dependency, local-first architecture so an evaluator can download and run it immediately. I started with a versioned shopping-list model and built every input path around one deterministic parser and action executor. Typed commands therefore exercise the same behavior as speech-recognition results and remain a reliable fallback when the Web Speech API is unavailable.
+
+The parser uses explicit multilingual patterns, validated quantities, and structured search entities instead of an opaque AI service. Recommendations remain explainable: regulars use addition frequency, while likely-needed items require repeated shopping days and compare elapsed time with the median restock interval. Seasonal items, sales, availability, and substitutes come from a clearly labelled local demonstration catalog. Optional demo history solves the cold-start problem without silently fabricating user data.
+
+The interface is rendered with safe DOM APIs, persists only necessary local data, and includes permission, timeout, no-result, unavailable-product, empty, loading, success, and error states. Native browser capabilities, semantic HTML, responsive CSS, and Node's built-in test runner keep the implementation small, auditable, accessible, and easy to deploy as a static site.
 
 ## Project structure
 
 ```text
-index.html      Semantic application shell
-styles.css      Responsive visual design
-app.js          State, persistence, rendering, and interactions
-app.test.mjs    Dependency-free logic checks
+index.html      Semantic application shell and CSP
+styles.css      Responsive visual design and states
+app.js          Catalog, parser, recommendations, state, and interactions
+app.test.mjs    Node built-in deterministic tests
+.gitignore      Submission exclusions
+README.md       Evaluator and submission documentation
 ```

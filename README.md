@@ -45,11 +45,11 @@ Add 2 bottles of water
 Remove milk from my list
 Change apples quantity to 10
 What am I running low on?
-Find Colgate toothpaste under $5
+Find Colgate toothpaste under ₹200
 दो बोतल दूध जोड़ो
 दूध दिखाओ
 Añade dos botellas de leche
-Busca leche por debajo de $4
+Busca leche por debajo de 100 rupias
 ```
 
 ## Recommendations and demo history
@@ -60,7 +60,7 @@ Select **Load demo history** to add explicitly labelled sample events for milk, 
 
 ## Product search
 
-Search commands extract independent filters and combine them against a 22-product local demonstration catalog. Sale prices are used for price filtering when applicable. Prices, sales, brands, availability, seasonal information, and substitutes are demonstration data, not live retailer claims. Adding a result routes through the existing list, history, categorization, and recommendation logic.
+Search commands extract independent filters and combine them against a 22-product local demonstration catalog priced in Indian rupees (₹). Sale prices are used for price filtering when applicable. Prices, sales, brands, availability, seasonal information, and substitutes are demonstration data, not live retailer claims. Adding a result routes through the existing list, history, categorization, and recommendation logic.
 
 ## Testing
 

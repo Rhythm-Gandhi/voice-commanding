@@ -5,28 +5,28 @@ const MAX_QUANTITY = 999;
 const DAY_MS = 86_400_000;
 
 const CATALOG = [
-  { id: "milk-whole", name: "Milk", category: "Dairy", brand: "Farm Fresh", price: 3.49, salePrice: null, size: "1 L", sizeClass: "large", attributes: ["whole"], seasonalMonths: [], available: false, substitutes: ["Oat milk", "Almond milk", "Soy milk"] },
-  { id: "milk-oat", name: "Oat milk", category: "Dairy", brand: "Oatly", price: 4.29, salePrice: 3.79, size: "1 L", sizeClass: "large", attributes: ["vegan", "dairy-free"], seasonalMonths: [], available: true, substitutes: ["Almond milk", "Soy milk"] },
-  { id: "milk-almond", name: "Almond milk", category: "Dairy", brand: "NutriLife", price: 4.19, salePrice: null, size: "1 L", sizeClass: "large", attributes: ["vegan", "dairy-free"], seasonalMonths: [], available: true, substitutes: ["Oat milk", "Soy milk"] },
-  { id: "milk-soy", name: "Soy milk", category: "Dairy", brand: "SoyGood", price: 3.99, salePrice: null, size: "1 L", sizeClass: "large", attributes: ["vegan", "dairy-free"], seasonalMonths: [], available: true, substitutes: ["Oat milk", "Almond milk"] },
-  { id: "bread-whole", name: "Bread", category: "Bakery", brand: "Daily Bake", price: 2.79, salePrice: 2.29, size: "500 g", sizeClass: "medium", attributes: ["whole wheat"], seasonalMonths: [], available: true, substitutes: ["Whole wheat bread", "Tortillas"] },
-  { id: "bread-organic", name: "Whole wheat bread", category: "Bakery", brand: "Earth Loaf", price: 4.49, salePrice: null, size: "450 g", sizeClass: "medium", attributes: ["organic", "whole wheat"], seasonalMonths: [], available: true, substitutes: ["Bread", "Tortillas"] },
-  { id: "tortillas", name: "Tortillas", category: "Bakery", brand: "Casa Sol", price: 3.29, salePrice: null, size: "8 pack", sizeClass: "medium", attributes: ["vegetarian"], seasonalMonths: [], available: true, substitutes: ["Bread"] },
-  { id: "eggs", name: "Eggs", category: "Dairy", brand: "Happy Hen", price: 3.99, salePrice: 3.49, size: "12 pack", sizeClass: "medium", attributes: ["free-range"], seasonalMonths: [], available: true, substitutes: ["Tofu", "Egg substitute"] },
-  { id: "apples-organic", name: "Organic Gala Apples", category: "Produce", brand: "Green Orchard", price: 5.49, salePrice: 4.99, size: "1 kg", sizeClass: "medium", attributes: ["organic", "fruit"], seasonalMonths: [7, 8, 9, 10], available: true, substitutes: ["Apples", "Oranges"] },
-  { id: "apples", name: "Apples", category: "Produce", brand: "Fresh Fields", price: 3.49, salePrice: null, size: "1 kg", sizeClass: "medium", attributes: ["fruit"], seasonalMonths: [7, 8, 9, 10], available: true, substitutes: ["Organic Gala Apples", "Oranges"] },
-  { id: "bananas-organic", name: "Organic Bananas", category: "Produce", brand: "Nature Crop", price: 2.99, salePrice: null, size: "6 pack", sizeClass: "medium", attributes: ["organic", "fruit"], seasonalMonths: [], available: true, substitutes: ["Apples"] },
-  { id: "mangoes", name: "Mangoes", category: "Produce", brand: "Sun Farm", price: 4.49, salePrice: 3.49, size: "4 pack", sizeClass: "medium", attributes: ["fruit"], seasonalMonths: [3, 4, 5, 6, 7], available: true, substitutes: ["Peaches", "Pineapple"] },
-  { id: "watermelon", name: "Watermelon", category: "Produce", brand: "Fresh Fields", price: 5.99, salePrice: null, size: "Large", sizeClass: "large", attributes: ["fruit"], seasonalMonths: [4, 5, 6, 7, 8], available: true, substitutes: ["Muskmelon"] },
-  { id: "oranges", name: "Oranges", category: "Produce", brand: "Citrus Grove", price: 4.29, salePrice: 3.59, size: "1 kg", sizeClass: "medium", attributes: ["fruit"], seasonalMonths: [11, 0, 1, 2], available: true, substitutes: ["Mandarins"] },
-  { id: "water-large", name: "Spring Water", category: "Beverages", brand: "AquaPure", price: 1.49, salePrice: 1.19, size: "1.5 L", sizeClass: "large", attributes: ["still"], seasonalMonths: [], available: true, substitutes: ["Mineral Water"] },
-  { id: "water-small", name: "Mineral Water", category: "Beverages", brand: "Evian", price: 3.29, salePrice: null, size: "750 mL", sizeClass: "small", attributes: ["mineral", "still"], seasonalMonths: [], available: true, substitutes: ["Spring Water"] },
-  { id: "hot-chocolate", name: "Hot chocolate", category: "Beverages", brand: "Cocoa House", price: 4.99, salePrice: 3.99, size: "250 g", sizeClass: "small", attributes: ["vegetarian"], seasonalMonths: [10, 11, 0, 1], available: true, substitutes: ["Cocoa powder"] },
-  { id: "toothpaste-colgate", name: "Colgate Total Toothpaste", category: "Household", brand: "Colgate", price: 4.49, salePrice: 3.99, size: "150 g", sizeClass: "medium", attributes: ["fluoride"], seasonalMonths: [], available: true, substitutes: ["Pepsodent Complete Toothpaste"] },
-  { id: "toothpaste-pepsodent", name: "Pepsodent Complete Toothpaste", category: "Household", brand: "Pepsodent", price: 3.49, salePrice: null, size: "150 g", sizeClass: "medium", attributes: ["fluoride"], seasonalMonths: [], available: true, substitutes: ["Colgate Total Toothpaste"] },
-  { id: "toothpaste-sensodyne", name: "Sensodyne Repair Toothpaste", category: "Household", brand: "Sensodyne", price: 6.49, salePrice: 5.99, size: "100 g", sizeClass: "small", attributes: ["sensitive"], seasonalMonths: [], available: true, substitutes: ["Colgate Total Toothpaste"] },
-  { id: "dove-bar", name: "Dove Beauty Bar", category: "Household", brand: "Dove", price: 4.75, salePrice: null, size: "4 pack", sizeClass: "medium", attributes: ["moisturizing"], seasonalMonths: [], available: true, substitutes: ["Gentle Soap"] },
-  { id: "dove-shampoo", name: "Dove Daily Shine Shampoo", category: "Household", brand: "Dove", price: 7.99, salePrice: 6.99, size: "400 mL", sizeClass: "large", attributes: ["moisturizing"], seasonalMonths: [], available: true, substitutes: [] }
+  { id: "milk-whole", name: "Milk", category: "Dairy", brand: "Farm Fresh", price: 68, salePrice: null, size: "1 L", sizeClass: "large", attributes: ["whole"], seasonalMonths: [], available: false, substitutes: ["Oat milk", "Almond milk", "Soy milk"] },
+  { id: "milk-oat", name: "Oat milk", category: "Dairy", brand: "Oatly", price: 210, salePrice: 189, size: "1 L", sizeClass: "large", attributes: ["vegan", "dairy-free"], seasonalMonths: [], available: true, substitutes: ["Almond milk", "Soy milk"] },
+  { id: "milk-almond", name: "Almond milk", category: "Dairy", brand: "NutriLife", price: 215, salePrice: null, size: "1 L", sizeClass: "large", attributes: ["vegan", "dairy-free"], seasonalMonths: [], available: true, substitutes: ["Oat milk", "Soy milk"] },
+  { id: "milk-soy", name: "Soy milk", category: "Dairy", brand: "SoyGood", price: 175, salePrice: null, size: "1 L", sizeClass: "large", attributes: ["vegan", "dairy-free"], seasonalMonths: [], available: true, substitutes: ["Oat milk", "Almond milk"] },
+  { id: "bread-whole", name: "Bread", category: "Bakery", brand: "Daily Bake", price: 55, salePrice: 45, size: "500 g", sizeClass: "medium", attributes: ["whole wheat"], seasonalMonths: [], available: true, substitutes: ["Whole wheat bread", "Tortillas"] },
+  { id: "bread-organic", name: "Whole wheat bread", category: "Bakery", brand: "Earth Loaf", price: 95, salePrice: null, size: "450 g", sizeClass: "medium", attributes: ["organic", "whole wheat"], seasonalMonths: [], available: true, substitutes: ["Bread", "Tortillas"] },
+  { id: "tortillas", name: "Tortillas", category: "Bakery", brand: "Casa Sol", price: 160, salePrice: null, size: "8 pack", sizeClass: "medium", attributes: ["vegetarian"], seasonalMonths: [], available: true, substitutes: ["Bread"] },
+  { id: "eggs", name: "Eggs", category: "Dairy", brand: "Happy Hen", price: 90, salePrice: 78, size: "12 pack", sizeClass: "medium", attributes: ["free-range"], seasonalMonths: [], available: true, substitutes: ["Tofu", "Egg substitute"] },
+  { id: "apples-organic", name: "Organic Gala Apples", category: "Produce", brand: "Green Orchard", price: 240, salePrice: 210, size: "1 kg", sizeClass: "medium", attributes: ["organic", "fruit"], seasonalMonths: [7, 8, 9, 10], available: true, substitutes: ["Apples", "Oranges"] },
+  { id: "apples", name: "Apples", category: "Produce", brand: "Fresh Fields", price: 170, salePrice: null, size: "1 kg", sizeClass: "medium", attributes: ["fruit"], seasonalMonths: [7, 8, 9, 10], available: true, substitutes: ["Organic Gala Apples", "Oranges"] },
+  { id: "bananas-organic", name: "Organic Bananas", category: "Produce", brand: "Nature Crop", price: 80, salePrice: null, size: "6 pack", sizeClass: "medium", attributes: ["organic", "fruit"], seasonalMonths: [], available: true, substitutes: ["Apples"] },
+  { id: "mangoes", name: "Mangoes", category: "Produce", brand: "Sun Farm", price: 180, salePrice: 149, size: "4 pack", sizeClass: "medium", attributes: ["fruit"], seasonalMonths: [3, 4, 5, 6, 7], available: true, substitutes: ["Peaches", "Pineapple"] },
+  { id: "watermelon", name: "Watermelon", category: "Produce", brand: "Fresh Fields", price: 120, salePrice: null, size: "Large", sizeClass: "large", attributes: ["fruit"], seasonalMonths: [4, 5, 6, 7, 8], available: true, substitutes: ["Muskmelon"] },
+  { id: "oranges", name: "Oranges", category: "Produce", brand: "Citrus Grove", price: 160, salePrice: 139, size: "1 kg", sizeClass: "medium", attributes: ["fruit"], seasonalMonths: [11, 0, 1, 2], available: true, substitutes: ["Mandarins"] },
+  { id: "water-large", name: "Spring Water", category: "Beverages", brand: "AquaPure", price: 30, salePrice: 25, size: "1.5 L", sizeClass: "large", attributes: ["still"], seasonalMonths: [], available: true, substitutes: ["Mineral Water"] },
+  { id: "water-small", name: "Mineral Water", category: "Beverages", brand: "Evian", price: 80, salePrice: null, size: "750 mL", sizeClass: "small", attributes: ["mineral", "still"], seasonalMonths: [], available: true, substitutes: ["Spring Water"] },
+  { id: "hot-chocolate", name: "Hot chocolate", category: "Beverages", brand: "Cocoa House", price: 199, salePrice: 169, size: "250 g", sizeClass: "small", attributes: ["vegetarian"], seasonalMonths: [10, 11, 0, 1], available: true, substitutes: ["Cocoa powder"] },
+  { id: "toothpaste-colgate", name: "Colgate Total Toothpaste", category: "Household", brand: "Colgate", price: 210, salePrice: 189, size: "150 g", sizeClass: "medium", attributes: ["fluoride"], seasonalMonths: [], available: true, substitutes: ["Pepsodent Complete Toothpaste"] },
+  { id: "toothpaste-pepsodent", name: "Pepsodent Complete Toothpaste", category: "Household", brand: "Pepsodent", price: 145, salePrice: null, size: "150 g", sizeClass: "medium", attributes: ["fluoride"], seasonalMonths: [], available: true, substitutes: ["Colgate Total Toothpaste"] },
+  { id: "toothpaste-sensodyne", name: "Sensodyne Repair Toothpaste", category: "Household", brand: "Sensodyne", price: 250, salePrice: 229, size: "100 g", sizeClass: "small", attributes: ["sensitive"], seasonalMonths: [], available: true, substitutes: ["Colgate Total Toothpaste"] },
+  { id: "dove-bar", name: "Dove Beauty Bar", category: "Household", brand: "Dove", price: 190, salePrice: null, size: "4 pack", sizeClass: "medium", attributes: ["moisturizing"], seasonalMonths: [], available: true, substitutes: ["Gentle Soap"] },
+  { id: "dove-shampoo", name: "Dove Daily Shine Shampoo", category: "Household", brand: "Dove", price: 275, salePrice: 249, size: "400 mL", sizeClass: "large", attributes: ["moisturizing"], seasonalMonths: [], available: true, substitutes: [] }
 ];
 
 const CATEGORIES = {
@@ -339,16 +339,16 @@ function parseCatalogSearch(value, language = "en", catalog = CATALOG) {
   const filters = {};
   const pricePatterns = {
     en: {
-      maxPrice: /\b(?:under|below|less than|up to)\s*\$?\s*(\d+(?:[.,]\d+)?)\s*(?:dollars?)?\b/u,
-      minPrice: /\b(?:over|above|more than|at least)\s*\$?\s*(\d+(?:[.,]\d+)?)\s*(?:dollars?)?\b/u
+      maxPrice: /\b(?:under|below|less than|up to)\s*(?:₹|rs\.?|inr)?\s*(\d+(?:[.,]\d+)?)\s*(?:rupees?)?\b/u,
+      minPrice: /\b(?:over|above|more than|at least)\s*(?:₹|rs\.?|inr)?\s*(\d+(?:[.,]\d+)?)\s*(?:rupees?)?\b/u
     },
     hi: {
-      maxPrice: /(?:₹|\$)?\s*(\d+(?:[.,]\d+)?)\s*(?:रुपये|डॉलर)?\s*से\s*(?:कम|नीचे)/u,
-      minPrice: /(?:₹|\$)?\s*(\d+(?:[.,]\d+)?)\s*(?:रुपये|डॉलर)?\s*से\s*(?:ज्यादा|अधिक|ऊपर)/u
+      maxPrice: /(?:₹)?\s*(\d+(?:[.,]\d+)?)\s*(?:रुपये)?\s*से\s*(?:कम|नीचे)/u,
+      minPrice: /(?:₹)?\s*(\d+(?:[.,]\d+)?)\s*(?:रुपये)?\s*से\s*(?:ज्यादा|अधिक|ऊपर)/u
     },
     es: {
-      maxPrice: /\b(?:por debajo de|menos de|hasta)\s*\$?\s*(\d+(?:[.,]\d+)?)\s*(?:dólares|dolares)?\b/u,
-      minPrice: /\b(?:por encima de|más de|mas de|al menos)\s*\$?\s*(\d+(?:[.,]\d+)?)\s*(?:dólares|dolares)?\b/u
+      maxPrice: /\b(?:por debajo de|menos de|hasta)\s*(?:₹|rs\.?|inr)?\s*(\d+(?:[.,]\d+)?)\s*(?:rupias?)?\b/u,
+      minPrice: /\b(?:por encima de|más de|mas de|al menos)\s*(?:₹|rs\.?|inr)?\s*(\d+(?:[.,]\d+)?)\s*(?:rupias?)?\b/u
     }
   };
   for (const [key, pattern] of Object.entries(pricePatterns[language])) {
@@ -428,7 +428,7 @@ function parseCatalogSearch(value, language = "en", catalog = CATALOG) {
 
   text = text
     .replace(/\b(?:me|some|the|products?|items?|bottles?|of|please|por favor|productos?|botellas?|de|मुझे|कुछ|उत्पाद|बोतलें?|की|के|का)\b/gu, " ")
-    .replace(/[$₹€]/g, " ")
+    .replace(/₹/g, " ")
     .replace(/\s+/g, " ")
     .trim();
   if (text) filters.query = text;
@@ -849,7 +849,7 @@ function init() {
       renderSearch();
       nodes.productSearch.scrollIntoView({ behavior: "smooth", block: "start" });
       if (!results.length) return { ok: true, message: "I couldn't find a matching demo product. Try changing the brand or price range." };
-      const pricePhrase = parsed.filters.maxPrice !== undefined ? ` under $${formatNumber(parsed.filters.maxPrice)}` : "";
+      const pricePhrase = parsed.filters.maxPrice !== undefined ? ` under ₹${formatNumber(parsed.filters.maxPrice)}` : "";
       return { ok: true, message: `I found ${results.length} product${results.length === 1 ? "" : "s"}${pricePhrase}.` };
     }
 
@@ -987,8 +987,8 @@ function init() {
 
     const priceRow = element("div", "product-price-row");
     const price = element("p", "product-price");
-    if (product.salePrice) price.append(element("s", "", `$${product.price.toFixed(2)}`));
-    price.append(document.createTextNode(`$${catalogPrice(product).toFixed(2)}`));
+    if (product.salePrice) price.append(element("s", "", `₹${product.price.toFixed(2)}`));
+    price.append(document.createTextNode(`₹${catalogPrice(product).toFixed(2)}`));
     priceRow.append(price);
     if (product.salePrice) priceRow.append(element("span", "sale-pill", "Demo sale"));
     card.append(priceRow, element("p", "product-size", `${product.size} • ${product.category}`));
@@ -1100,8 +1100,8 @@ function init() {
     card.append(element("h3", "", item.name), element("p", "suggestion-reason", item.reason));
     if (item.salePrice) {
       const price = element("p", "suggestion-price");
-      const oldPrice = element("s", "", `$${item.price.toFixed(2)}`);
-      price.append(oldPrice, document.createTextNode(`$${item.salePrice.toFixed(2)} demo sale`));
+      const oldPrice = element("s", "", `₹${item.price.toFixed(2)}`);
+      price.append(oldPrice, document.createTextNode(`₹${item.salePrice.toFixed(2)} demo sale`));
       card.append(price);
     }
     const actions = element("div", "suggestion-actions");

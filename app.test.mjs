@@ -153,29 +153,30 @@ test("understands broader suggestion requests in all supported languages", () =>
 });
 
 test("extracts product, brand, price, size, attribute, and category filters", () => {
-  assert.deepEqual(plain(parseCatalogSearch("Colgate toothpaste under $5", "en")), { maxPrice: 5, brand: "Colgate", query: "toothpaste" });
-  assert.deepEqual(plain(parseCatalogSearch("organic fruit under $6", "en")), { maxPrice: 6, attributes: ["organic"], category: "Produce" });
+  assert.deepEqual(plain(parseCatalogSearch("Colgate toothpaste under ₹200", "en")), { maxPrice: 200, brand: "Colgate", query: "toothpaste" });
+  assert.deepEqual(plain(parseCatalogSearch("organic fruit under 220 rupees", "en")), { maxPrice: 220, attributes: ["organic"], category: "Produce" });
   assert.deepEqual(plain(parseCatalogSearch("large bottles of water", "en")), { size: "large", query: "water" });
-  assert.deepEqual(plain(parseCatalogSearch("toothpaste over $4", "en")), { minPrice: 4, query: "toothpaste" });
+  assert.deepEqual(plain(parseCatalogSearch("toothpaste over ₹200", "en")), { minPrice: 200, query: "toothpaste" });
 });
 
 test("filters catalog products using combined structured entities", () => {
-  const parsed = parseCommand("Find Colgate toothpaste under $5", "en-US");
+  const parsed = parseCommand("Find Colgate toothpaste under ₹200", "en-US");
   assert.equal(parsed.intent, "search");
   assert.deepEqual(plain(searchCatalog(parsed.filters)).map(({ id }) => id), ["toothpaste-colgate"]);
-  assert.equal(searchCatalog(parseCatalogSearch("organic fruit under $6", "en")).every((product) => product.category === "Produce" && product.attributes.includes("organic") && (product.salePrice ?? product.price) <= 6), true);
+  assert.equal(searchCatalog(parseCatalogSearch("organic fruit under ₹220", "en")).every((product) => product.category === "Produce" && product.attributes.includes("organic") && (product.salePrice ?? product.price) <= 220), true);
   assert.deepEqual(plain(searchCatalog(parseCommand("Show me Dove products", "en-US").filters)).map(({ brand }) => brand), ["Dove", "Dove"]);
 });
 
 test("supports minimum price, no results, and multilingual core search terms", () => {
-  assert.equal(searchCatalog(parseCatalogSearch("toothpaste over $6", "en")).every((product) => (product.salePrice ?? product.price) >= 6), true);
-  assert.deepEqual(plain(searchCatalog(parseCatalogSearch("Colgate toothpaste under $2", "en"))), []);
+  assert.equal(searchCatalog(parseCatalogSearch("toothpaste over ₹200", "en")).every((product) => (product.salePrice ?? product.price) >= 200), true);
+  assert.deepEqual(plain(searchCatalog(parseCatalogSearch("Colgate toothpaste under ₹100", "en"))), []);
   assert.equal(searchCatalog(parseCommand("दूध दिखाओ", "hi-IN").filters).some(({ name }) => name === "Milk"), true);
-  assert.equal(searchCatalog(parseCommand("Busca leche por debajo de $4", "es-ES").filters).some(({ name }) => name === "Milk"), true);
+  assert.equal(searchCatalog(parseCommand("100 रुपये से कम दूध दिखाओ", "hi-IN").filters).some(({ name }) => name === "Milk"), true);
+  assert.equal(searchCatalog(parseCommand("Busca leche por debajo de 100 rupias", "es-ES").filters).some(({ name }) => name === "Milk"), true);
 });
 
 test("returns unavailable products with substitutes", () => {
-  const milk = searchCatalog(parseCatalogSearch("milk under $4", "en")).find(({ name }) => name === "Milk");
+  const milk = searchCatalog(parseCatalogSearch("milk under ₹100", "en")).find(({ name }) => name === "Milk");
   assert.equal(milk.available, false);
   assert.deepEqual(plain(getSubstitutes(milk.name)).map(({ name }) => name), ["Oat milk", "Almond milk", "Soy milk"]);
 });

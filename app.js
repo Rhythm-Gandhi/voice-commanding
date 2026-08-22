@@ -1456,6 +1456,7 @@ function init() {
   });
 
   nodes.downloadListImage.addEventListener("click", () => {
+    // ponytail: cap one canvas at 100 items; paginate only if real shopping lists exceed that.
     const items = store.list.items.slice(0, 100);
     const canvas = document.createElement("canvas");
     const width = 1080;

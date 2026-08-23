@@ -5,10 +5,20 @@ import vm from "node:vm";
 
 const context = vm.createContext({ Intl });
 const source = readFileSync(new URL("./app.js", import.meta.url), "utf8");
-vm.runInContext(`${source}\nglobalThis.testApi = { CATALOG, buildRecommendations, categorizeItem, createDemoHistory, createEmptyStore, dedupeItems, findAmbiguousItem, getSubstitutes, itemKey, normalizeItemName, parseCatalogSearch, parseCommand, parseQuantity, productListItem, searchCatalog, shoppingListText, speechLanguage, validHistoryEvent, validateItemName };`, context);
-const { CATALOG, buildRecommendations, categorizeItem, createDemoHistory, createEmptyStore, dedupeItems, findAmbiguousItem, getSubstitutes, itemKey, normalizeItemName, parseCatalogSearch, parseCommand, parseQuantity, productListItem, searchCatalog, shoppingListText, speechLanguage, validHistoryEvent, validateItemName } = context.testApi;
+vm.runInContext(`${source}\nglobalThis.testApi = { CATALOG, buildRecommendations, categorizeItem, createDemoHistory, createEmptyStore, dedupeItems, findAmbiguousItem, getSubstitutes, itemKey, listCatalogEstimate, normalizeItemName, parseCatalogSearch, parseCommand, parseQuantity, productListItem, searchCatalog, shoppingListText, speechLanguage, validHistoryEvent, validateItemName, viewFromHash };`, context);
+const { CATALOG, buildRecommendations, categorizeItem, createDemoHistory, createEmptyStore, dedupeItems, findAmbiguousItem, getSubstitutes, itemKey, listCatalogEstimate, normalizeItemName, parseCatalogSearch, parseCommand, parseQuantity, productListItem, searchCatalog, shoppingListText, speechLanguage, validHistoryEvent, validateItemName, viewFromHash } = context.testApi;
 const plain = (value) => JSON.parse(JSON.stringify(value));
 const DAY_MS = 86_400_000;
+
+test("maps linked mobile views and totals demonstration catalog prices", () => {
+  assert.equal(viewFromHash("#lists"), "lists");
+  assert.equal(viewFromHash("#recommendations"), "recommendations");
+  assert.equal(viewFromHash("#unknown"), "home");
+  assert.deepEqual(plain(listCatalogEstimate([
+    { name: "Bread", quantity: 2 },
+    { name: "Unknown grocery", quantity: 3 }
+  ])), { total: 90, savings: 20 });
+});
 
 function added(name, daysAgo, now = new Date("2026-06-30T12:00:00Z")) {
   return validHistoryEvent({ name, quantity: 1, unit: "item", type: "added", at: new Date(now.getTime() - daysAgo * DAY_MS).toISOString() });

@@ -779,6 +779,22 @@ function iconButton(action, symbol, label) {
   return button;
 }
 
+function viewFromHash(hash) {
+  const view = String(hash).replace(/^#/, "");
+  return ["lists", "recommendations"].includes(view) ? view : "home";
+}
+
+function listCatalogEstimate(items) {
+  return items.reduce((totals, item) => {
+    const product = CATALOG.find(({ name }) => itemKey(name) === itemKey(item.name));
+    if (!product) return totals;
+    const quantity = Number(item.quantity) || 1;
+    totals.total += (product.salePrice ?? product.price) * quantity;
+    totals.savings += Math.max(0, product.price - (product.salePrice ?? product.price)) * quantity;
+    return totals;
+  }, { total: 0, savings: 0 });
+}
+
 function init() {
   const nodes = {
     assistantCard: document.querySelector(".assistant-card"),
@@ -802,6 +818,9 @@ function init() {
     empty: document.querySelector("#empty-state"),
     emptyAdd: document.querySelector("#empty-add-button"),
     summary: document.querySelector("#list-summary"),
+    listEstimate: document.querySelector("#list-estimate"),
+    listSavings: document.querySelector("#list-savings"),
+    listPageCount: document.querySelector("#list-page-count"),
     shareList: document.querySelector("#share-list"),
     downloadListImage: document.querySelector("#download-list-image"),
     clearCompleted: document.querySelector("#clear-completed"),
@@ -845,6 +864,23 @@ function init() {
   let searchState = null;
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   const canSpeak = typeof window.speechSynthesis?.speak === "function" && typeof window.SpeechSynthesisUtterance === "function";
+
+  function setView(view, updateHistory = true) {
+    const nextView = ["lists", "recommendations"].includes(view) ? view : "home";
+    document.body.dataset.view = nextView;
+    document.querySelectorAll(".bottom-nav [data-view]").forEach((link) => {
+      if (link.dataset.view === nextView) link.setAttribute("aria-current", "page");
+      else link.removeAttribute("aria-current");
+    });
+    if (updateHistory && viewFromHash(location.hash) !== nextView) history.pushState(null, "", `#${nextView}`);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  document.querySelectorAll("[data-view]").forEach((link) => link.addEventListener("click", (event) => {
+    event.preventDefault();
+    setView(link.dataset.view);
+  }));
+  window.addEventListener("popstate", () => setView(viewFromHash(location.hash), false));
 
   function showFeedback(message, tone = "success") {
     window.clearTimeout(feedbackTimer);
@@ -1062,6 +1098,7 @@ function init() {
       const results = searchCatalog(parsed.filters);
       searchState = { query: parsed.query, filters: parsed.filters, results };
       renderSearch();
+      setView("home");
       nodes.productSearch.scrollIntoView({ behavior: "smooth", block: "start" });
       if (!results.length) return { ok: true, message: "I couldn't find a matching demo product. Try changing the brand or price range." };
       const pricePhrase = parsed.filters.maxPrice !== undefined ? ` under ₹${formatNumber(parsed.filters.maxPrice)}` : "";
@@ -1074,13 +1111,13 @@ function init() {
       store.preferences.requestedSubstitute = parsed.query;
       saveStore();
       render();
-      nodes.recommendations.scrollIntoView({ behavior: "smooth", block: "start" });
+      setView("recommendations");
       return { ok: true, message: `Try ${substitutes.map(({ name }) => name).join(", ")} instead of ${parsed.query}.` };
     }
 
     const recommendations = buildRecommendations(store.history, store.list.items, store.preferences.dismissedSuggestions ?? []);
     const count = recommendations.likely.length || recommendations.regulars.length;
-    nodes.recommendations.scrollIntoView({ behavior: "smooth", block: "start" });
+    setView("recommendations");
     return { ok: true, message: count ? `I found ${count} history-based suggestion${count === 1 ? "" : "s"}. See why below.` : "I need a little more shopping history first. You can load the clearly labelled demo history below." };
   }
 
@@ -1394,7 +1431,11 @@ function init() {
   function render() {
     const items = store.list.items;
     const completed = items.filter((item) => item.completed).length;
+    const estimate = listCatalogEstimate(items);
     nodes.summary.textContent = `${items.length} ${items.length === 1 ? "item" : "items"}${completed ? ` • ${completed} checked` : ""}`;
+    nodes.listPageCount.textContent = `${items.length} ${items.length === 1 ? "item" : "items"}`;
+    nodes.listEstimate.textContent = `₹${estimate.total.toFixed(2)}`;
+    nodes.listSavings.textContent = `₹${estimate.savings.toFixed(2)}`;
     nodes.shareList.disabled = items.length === 0;
     nodes.downloadListImage.disabled = items.length === 0;
     nodes.clearCompleted.hidden = completed === 0;
@@ -1542,6 +1583,7 @@ function init() {
   nodes.closeDialog.addEventListener("click", () => nodes.editDialog.close());
   nodes.cancelEdit.addEventListener("click", () => nodes.editDialog.close());
   nodes.emptyAdd.addEventListener("click", () => {
+    setView("home");
     nodes.name.focus();
     nodes.name.scrollIntoView({ behavior: "smooth", block: "center" });
   });
@@ -1729,6 +1771,7 @@ function init() {
   nodes.spokenFeedback.disabled = !canSpeak;
   nodes.micButton.disabled = !SpeechRecognition;
   nodes.language.dispatchEvent(new Event("change"));
+  setView(viewFromHash(location.hash), false);
   if (!SpeechRecognition) {
     setVoiceState("error", "Voice recognition is unavailable in this browser. Type a command below—the same parser and actions still work.");
   } else {

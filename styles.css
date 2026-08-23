@@ -2540,3 +2540,152 @@ h3,
     grid-template-columns: 1fr;
   }
 }
+
+/* Linked mobile views */
+.header-language {
+  display: flex;
+  justify-content: flex-end;
+  min-width: 0;
+}
+
+.header-language select {
+  width: 126px;
+  min-height: 34px;
+  padding: 6px 25px 6px 10px;
+  color: #5b3526;
+  font-size: 0.67rem;
+  font-weight: 800;
+  background: #fff4ed;
+  border: 1px solid #ead8cf;
+  border-radius: 99px;
+}
+
+.list-page-overview {
+  display: none;
+}
+
+body[data-view="home"] #recommendations {
+  display: none;
+}
+
+body[data-view="lists"] .assistant-card,
+body[data-view="lists"] .add-card,
+body[data-view="lists"] #product-search,
+body[data-view="lists"] #recommendations,
+body[data-view="recommendations"] .assistant-card,
+body[data-view="recommendations"] .content-grid,
+body[data-view="recommendations"] #product-search,
+body[data-view="recommendations"] .list-page-overview {
+  display: none;
+}
+
+body[data-view="lists"] .list-page-overview {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+body[data-view="lists"] .content-grid {
+  margin-top: 15px;
+}
+
+body[data-view="lists"] #shopping-list {
+  order: 1;
+}
+
+body[data-view="recommendations"] #recommendations {
+  display: block;
+  margin-top: 4px;
+}
+
+.view-back {
+  display: inline-grid;
+  width: 34px;
+  height: 34px;
+  color: #543326;
+  font-size: 1rem;
+  text-decoration: none;
+  place-items: center;
+}
+
+.estimate-card,
+.savings-card {
+  position: relative;
+  display: grid;
+  gap: 3px;
+  overflow: hidden;
+  padding: 15px 17px;
+  border-radius: 10px;
+  box-shadow: 0 6px 18px rgba(73, 42, 30, 0.08);
+}
+
+.estimate-card {
+  color: #57362a;
+  background: #fff;
+  border: 1px solid #f0e6df;
+}
+
+.estimate-card::after {
+  position: absolute;
+  top: -24px;
+  right: -18px;
+  width: 82px;
+  height: 82px;
+  content: "";
+  background: #fff7f2;
+  border-radius: 50%;
+}
+
+.savings-card {
+  color: #fff8f2;
+  background: #a3484d;
+}
+
+.estimate-card span,
+.savings-card span {
+  font-size: 0.58rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.estimate-card strong,
+.savings-card strong {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.35rem;
+}
+
+.estimate-card small,
+.savings-card small,
+.estimate-card em {
+  font-size: 0.61rem;
+}
+
+.estimate-card em {
+  color: #966354;
+  font-style: normal;
+}
+
+.bottom-nav {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.bottom-nav a:first-child {
+  color: #6e4a3a;
+  background: transparent;
+}
+
+.bottom-nav a[aria-current="page"],
+.bottom-nav a[aria-current="page"]:hover,
+.bottom-nav a[aria-current="page"]:focus-visible {
+  color: #fffaf4;
+  background: #8b5234;
+}
+
+@media (max-width: 370px) {
+  .header-language select {
+    width: 108px;
+    font-size: 0.6rem;
+  }
+}

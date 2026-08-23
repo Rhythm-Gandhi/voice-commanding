@@ -14,19 +14,26 @@
     >
     <title>Piko - Your shopping companion</title>
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Ctext y='.9em' font-size='90'%3E🛒%3C/text%3E%3C/svg%3E">
-    <link rel="stylesheet" href="styles.css?v=20260823-mobile">
-    <script type="module" src="app.js?v=20260823-7"></script>
+    <link rel="stylesheet" href="styles.css?v=20260823-pages">
+    <script type="module" src="app.js?v=20260823-9"></script>
   </head>
-  <body data-app-state="loading">
+  <body data-app-state="loading" data-view="home">
     <div class="ambient ambient-one" aria-hidden="true"></div>
     <div class="ambient ambient-two" aria-hidden="true"></div>
 
     <header class="site-header">
       <span class="header-symbol" aria-hidden="true">♩</span>
-      <a class="brand" href="#main-content" aria-label="Piko home">
+      <a class="brand" href="#home" data-view="home" aria-label="Piko home">
         <span class="brand-mark">PIKO</span>
       </a>
-      <span class="local-badge" title="Saved on this device"><span aria-hidden="true">◎</span><span class="local-label">On device</span></span>
+      <label class="header-language" for="voice-language">
+        <span class="sr-only">Language</span>
+        <select id="voice-language" aria-label="Language">
+          <option value="en-IN">English / Hinglish</option>
+          <option value="hi-IN">हिन्दी</option>
+          <option value="es-ES">Español</option>
+        </select>
+      </label>
     </header>
 
     <main id="main-content" class="app-shell">
@@ -40,14 +47,6 @@
         <div class="assistant-main">
           <div class="assistant-toolbar">
             <span class="state-pill"><span class="state-dot" aria-hidden="true"></span> <span id="voice-state-label">Ready</span></span>
-            <label class="language-control" for="voice-language">
-              <span>Language</span>
-              <select id="voice-language">
-                <option value="en-IN">English / Hinglish</option>
-                <option value="hi-IN">हिन्दी</option>
-                <option value="es-ES">Español</option>
-              </select>
-            </label>
           </div>
           <div class="assistant-copy">
             <h2 id="assistant-title">Say it. Piko will list it.</h2>
@@ -90,6 +89,21 @@
           <summary>How voice privacy works</summary>
           <p>Piko does not intentionally record or store microphone audio. Depending on your browser, speech recognition may use a browser or provider-managed remote service.</p>
         </details>
+      </section>
+
+      <section class="list-page-overview" aria-label="List overview">
+        <a class="view-back" href="#home" data-view="home" aria-label="Back to home">←</a>
+        <div class="estimate-card">
+          <span>Total estimate</span>
+          <strong id="list-estimate">₹0</strong>
+          <small id="list-page-count">0 items</small>
+          <em>Demonstration catalog estimate</em>
+        </div>
+        <div class="savings-card">
+          <span>Potential savings</span>
+          <strong id="list-savings">₹0</strong>
+          <small>Based on demonstration sale prices</small>
+        </div>
       </section>
 
       <div class="content-grid">
@@ -208,8 +222,8 @@
       <section id="recommendations" class="recommendations-card" aria-labelledby="recommendations-title">
         <div class="section-heading recommendation-heading">
           <div>
-            <p class="eyebrow">Local, explainable suggestions</p>
-            <h2 id="recommendations-title">A smarter next basket</h2>
+            <p class="eyebrow">Curated for you</p>
+            <h2 id="recommendations-title">Curated for You</h2>
             <p id="history-summary" class="recommendation-intro">Add items over time to teach Piko your routine.</p>
           </div>
           <div class="data-actions">
@@ -247,10 +261,9 @@
     </main>
 
     <nav class="bottom-nav" aria-label="Primary navigation">
-      <a href="#main-content"><span aria-hidden="true">⌂</span><small>Home</small></a>
-      <a href="#shopping-list"><span aria-hidden="true">☷</span><small>Lists</small></a>
-      <a href="#recommendations"><span aria-hidden="true">♡</span><small>Recommendations</small></a>
-      <a href="#voice-settings"><span aria-hidden="true">⚙</span><small>Settings</small></a>
+      <a href="#home" data-view="home"><span aria-hidden="true">⌂</span><small>Home</small></a>
+      <a href="#lists" data-view="lists"><span aria-hidden="true">☷</span><small>Lists</small></a>
+      <a href="#recommendations" data-view="recommendations"><span aria-hidden="true">♡</span><small>Recommendations</small></a>
     </nav>
 
     <div id="feedback" class="feedback" role="status" aria-live="polite" hidden>

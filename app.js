@@ -433,7 +433,7 @@ function parseItemPhrase(value, language) {
   const aliases = unitAliases(language);
   const units = [...aliases.keys()].sort((a, b) => b.length - a.length).map(escapeRegex).join("|");
   const text = replaceNumberWords(normalizeCommand(value), language);
-  const preposition = language === "es" ? "de" : language === "hi" ? "का|की|के" : "of";
+  const preposition = language === "es" ? "de" : language === "hi" ? "का|की|के" : "of|ka|ki|ke";
   let match = text.match(new RegExp(`^(\\d+(?:[.,]\\d+)?)\\s+(${units})(?:\\s+(?:${preposition}))?\\s+(.+)$`, "u"));
   let quantity;
   let unit = "item";
@@ -477,6 +477,20 @@ function parseQuantityValue(value, language) {
   if (!match) return null;
   const quantity = parseQuantity(match[1].replace(",", "."));
   return quantity === null ? null : { quantity, unit: match[2] ? aliases.get(match[2]) : null };
+}
+
+function hasExplicitAmount(value, language) {
+  return /(?:^|\s)\d+(?:[.,]\d+)?(?=\s|$)/u.test(replaceNumberWords(normalizeCommand(value), language));
+}
+
+function quantityRemoval(item, request) {
+  if (request.unit !== "item" && request.unit !== item.unit) {
+    return { ok: false, error: `${item.name} is stored in ${UNIT_LABELS[item.unit][1]}, not ${UNIT_LABELS[request.unit][1]}.` };
+  }
+  if (request.quantity > item.quantity) {
+    return { ok: false, error: `You only have ${formatAmount(item.quantity, item.unit)} of ${item.name}.` };
+  }
+  return { ok: true, remaining: Math.round((item.quantity - request.quantity) * 100) / 100 };
 }
 
 function splitItemPhrases(value, language) {
@@ -638,7 +652,13 @@ function productListItem(product) {
 
 function parseCommand(value, recognitionLanguage = "en-US") {
   const language = languageKey(recognitionLanguage);
-  const text = normalizeCommand(value);
+  let text = normalizeCommand(value);
+  const politeLead = {
+    en: /^(?:(?:hey\s+)?piko\s+|please\s+|(?:can|could|would|will)\s+you\s+(?:please\s+)?)+/u,
+    hi: /^(?:पिको\s+|ज़रा\s+|जरा\s+)+/u,
+    es: /^(?:piko\s+|puedes\s+)+/u
+  };
+  text = text.replace(politeLead[language], "").trim();
   if (!text) return { ok: false, error: "Say or type a shopping command first." };
   if (text.length > 160) return { ok: false, error: "Keep commands under 160 characters." };
 
@@ -700,8 +720,20 @@ function parseCommand(value, recognitionLanguage = "en-US") {
     if (amount && !validateItemName(name)) return commandResult("updateQuantity", language, { item: { name: capitalize(name), ...amount }, operation: "increment" });
   }
 
+  const decreasePatterns = {
+    en: /^(?:reduce|decrease|lower)\s+(.+?)\s+by\s+(.+)$/u,
+    hi: /^(.+?)\s+(?:में\s+से\s+)?(.+?)\s+कम\s+(?:करो|कर\s+दो)$/u,
+    es: /^(?:reduce|disminuye)\s+(.+?)\s+(?:en|por)\s+(.+)$/u
+  };
+  const decreaseMatch = text.match(decreasePatterns[language]);
+  if (decreaseMatch) {
+    const amount = parseQuantityValue(decreaseMatch[2], language);
+    const name = cleanItemName(decreaseMatch[1], language);
+    if (amount && !validateItemName(name)) return commandResult("remove", language, { items: [{ name: friendlyItemName(name), quantity: amount.quantity, unit: amount.unit ?? "item" }], operation: "decrement" });
+  }
+
   const removePatterns = {
-    en: [/^(?:remove|delete)\s+(.+?)(?:\s+from\s+(?:my\s+)?list)?$/u, /^take\s+(.+?)\s+off\s+(?:my\s+)?list$/u, /^i\s+don'?t\s+need\s+(.+?)(?:\s+anymore)?$/u],
+    en: [/^(?:remove|delete|take\s+out|drop|get\s+rid\s+of)\s+(.+?)(?:\s+from\s+(?:my\s+)?list)?$/u, /^(?:i(?:'d|\s+would)\s+like\s+to|i\s+want\s+to)\s+(?:remove|delete|take\s+out)\s+(.+?)(?:\s+from\s+(?:my\s+)?list)?$/u, /^take\s+(.+?)\s+(?:off|out\s+of)\s+(?:my\s+)?list$/u, /^i\s+don'?t\s+need\s+(.+?)(?:\s+anymore)?$/u],
     hi: [/^(?:मेरी\s+सूची\s+से\s+)?(.+?)\s+(?:हटाओ|निकालो)$/u, /^मुझे\s+(.+?)\s+नहीं\s+चाहिए$/u],
     es: [/^(?:elimina|quita|borra)\s+(.+?)(?:\s+de\s+mi\s+lista)?$/u, /^no\s+necesito\s+(.+?)(?:\s+más|\s+mas)?$/u]
   };
@@ -709,13 +741,13 @@ function parseCommand(value, recognitionLanguage = "en-US") {
     const match = text.match(pattern);
     if (!match) continue;
     const parsedItems = parseItems(match[1], language, true);
-    return parsedItems ? commandResult("remove", language, parsedItems) : { ok: false, error: "I couldn't identify which item to remove." };
+    return parsedItems ? commandResult("remove", language, { ...parsedItems, operation: hasExplicitAmount(match[1], language) ? "decrement" : "all" }) : { ok: false, error: "I couldn't identify which item to remove." };
   }
 
   const hinglishRemove = text.match(/^(?:list\s+se\s+)?(.+?)\s+(?:hata\s+do|hatao|remove\s+karo|list\s+se\s+hata\s+do|delete\s+kar\s+do|nahi\s+chahiye)$/u);
   if (hinglishRemove) {
     const parsedItems = parseItems(hinglishRemove[1], language, true);
-    return parsedItems ? commandResult("remove", language, parsedItems) : { ok: false, error: "I couldn't identify which item to remove." };
+    return parsedItems ? commandResult("remove", language, { ...parsedItems, operation: hasExplicitAmount(hinglishRemove[1], language) ? "decrement" : "all" }) : { ok: false, error: "I couldn't identify which item to remove." };
   }
 
   const addPatterns = {
@@ -926,6 +958,9 @@ function init() {
       en: {
         added: () => `Added ${describeItems(details.items, "en")}!`,
         removed: () => `Removed ${details.names.join(", ")} from your list.`,
+        decreased: () => details.changes.map(({ request, item, result }) => result.remaining
+          ? `Removed ${formatAmount(request.quantity, item.unit)} of ${item.name}; ${formatAmount(result.remaining, item.unit)} remain.`
+          : `Removed the remaining ${formatAmount(request.quantity, item.unit)} of ${item.name}.`).join(" "),
         updated: () => `Updated ${details.name} to ${formatAmount(details.quantity, details.unit)}.`,
         cleared: () => `Cleared ${details.count} ${details.count === 1 ? "item" : "items"} from your list.`,
         empty: () => "Your shopping list is already empty."
@@ -933,6 +968,7 @@ function init() {
       hi: {
         added: () => `${describeItems(details.items, "hi")} सूची में जोड़ दिया।`,
         removed: () => `${details.names.join(", ")} सूची से हटा दिया।`,
+        decreased: () => details.changes.map(({ request, item, result }) => `${item.name} में से ${formatAmount(request.quantity, item.unit)} हटा दिया; ${formatAmount(result.remaining, item.unit)} बाकी है।`).join(" "),
         updated: () => `${details.name} की मात्रा ${formatAmount(details.quantity, details.unit)} कर दी।`,
         cleared: () => `सूची से ${details.count} आइटम हटा दिए।`,
         empty: () => "आपकी खरीदारी सूची पहले से खाली है।"
@@ -940,6 +976,7 @@ function init() {
       es: {
         added: () => `Añadí ${describeItems(details.items, "es")}.`,
         removed: () => `Eliminé ${details.names.join(", ")} de tu lista.`,
+        decreased: () => details.changes.map(({ request, item, result }) => `Quité ${formatAmount(request.quantity, item.unit)} de ${item.name}; quedan ${formatAmount(result.remaining, item.unit)}.`).join(" "),
         updated: () => `Actualicé ${details.name} a ${formatAmount(details.quantity, details.unit)}.`,
         cleared: () => `Eliminé ${details.count} artículos de tu lista.`,
         empty: () => "Tu lista de compras ya está vacía."
@@ -1055,8 +1092,30 @@ function init() {
     }
 
     if (parsed.intent === "remove") {
-      const found = parsed.items.map(({ name }) => findItem(name)).filter(Boolean);
-      if (!found.length) return { ok: false, message: `I couldn't find ${parsed.items.map(({ name }) => name).join(", ")} on your list.` };
+      const requests = parsed.items.map((request) => ({ request, item: findItem(request.name) }));
+      const missing = requests.filter(({ item }) => !item).map(({ request }) => request.name);
+      if (missing.length) return { ok: false, message: `I couldn't find ${missing.join(", ")} on your list.` };
+
+      if (parsed.operation === "decrement") {
+        const changes = requests.map(({ request, item }) => ({ request, item, result: quantityRemoval(item, request) }));
+        const invalid = changes.find(({ result }) => !result.ok);
+        if (invalid) return { ok: false, message: invalid.result.error };
+        const removedIds = new Set();
+        changes.forEach(({ request, item, result }) => {
+          recordHistory({ ...item, quantity: request.quantity }, "removed");
+          if (result.remaining === 0) removedIds.add(item.id);
+          else {
+            item.quantity = result.remaining;
+            item.updatedAt = new Date().toISOString();
+          }
+        });
+        store.list.items = store.list.items.filter(({ id }) => !removedIds.has(id));
+        saveStore();
+        render();
+        return { ok: true, message: actionMessage(parsed.language, "decreased", { changes }) };
+      }
+
+      const found = requests.map(({ item }) => item);
       const ids = new Set(found.map(({ id }) => id));
       found.forEach((item) => recordHistory(item, "removed"));
       store.list.items = store.list.items.filter(({ id }) => !ids.has(id));

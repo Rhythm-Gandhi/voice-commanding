@@ -5,8 +5,8 @@ import vm from "node:vm";
 
 const context = vm.createContext({ Intl });
 const source = readFileSync(new URL("./app.js", import.meta.url), "utf8");
-vm.runInContext(`${source}\nglobalThis.testApi = { CATALOG, buildRecommendations, categorizeItem, createDemoHistory, createEmptyStore, dedupeItems, findAmbiguousItem, getSubstitutes, itemKey, listCatalogEstimate, normalizeItemName, parseCatalogSearch, parseCommand, parseQuantity, productListItem, searchCatalog, shoppingListText, speechLanguage, validHistoryEvent, validateItemName, viewFromHash };`, context);
-const { CATALOG, buildRecommendations, categorizeItem, createDemoHistory, createEmptyStore, dedupeItems, findAmbiguousItem, getSubstitutes, itemKey, listCatalogEstimate, normalizeItemName, parseCatalogSearch, parseCommand, parseQuantity, productListItem, searchCatalog, shoppingListText, speechLanguage, validHistoryEvent, validateItemName, viewFromHash } = context.testApi;
+vm.runInContext(`${source}\nglobalThis.testApi = { CATALOG, buildRecommendations, categorizeItem, createDemoHistory, createEmptyStore, dedupeItems, findAmbiguousItem, getSubstitutes, itemKey, listCatalogEstimate, normalizeItemName, parseCatalogSearch, parseCommand, parseQuantity, productListItem, quantityRemoval, searchCatalog, shoppingListText, speechLanguage, validHistoryEvent, validateItemName, viewFromHash };`, context);
+const { CATALOG, buildRecommendations, categorizeItem, createDemoHistory, createEmptyStore, dedupeItems, findAmbiguousItem, getSubstitutes, itemKey, listCatalogEstimate, normalizeItemName, parseCatalogSearch, parseCommand, parseQuantity, productListItem, quantityRemoval, searchCatalog, shoppingListText, speechLanguage, validHistoryEvent, validateItemName, viewFromHash } = context.testApi;
 const plain = (value) => JSON.parse(JSON.stringify(value));
 const DAY_MS = 86_400_000;
 
@@ -230,6 +230,22 @@ test("distinguishes English remove, set, increment, and future intents", () => {
   assert.equal(parseCommand("Clear my shopping list", "en-US").intent, "clear");
   assert.equal(parseCommand("Find organic apples", "en-US").intent, "search");
   assert.equal(parseCommand("Recommend something", "en-US").intent, "suggestion");
+});
+
+test("decrements quantified removals while keeping plain remove as full deletion", () => {
+  const direct = plain(parseCommand("Remove 2 pkt milk", "en-IN"));
+  assert.equal(direct.operation, "decrement");
+  assert.deepEqual(direct.items, [{ name: "Milk", quantity: 2, unit: "pack" }]);
+  assert.deepEqual(plain(parseCommand("Could you please remove two packets of milk from my list", "en-IN")).items, direct.items);
+  assert.deepEqual(plain(parseCommand("I would like to take out two packets of milk", "en-IN")).items, direct.items);
+  assert.deepEqual(plain(parseCommand("Reduce milk by two packets", "en-IN")).items, direct.items);
+  assert.deepEqual(plain(parseCommand("milk ke do packet hata do", "en-IN")).items, direct.items);
+  assert.equal(parseCommand("remove milk", "en-IN").operation, "all");
+
+  const milk = { name: "Milk", quantity: 5, unit: "pack" };
+  assert.deepEqual(plain(quantityRemoval(milk, direct.items[0])), { ok: true, remaining: 3 });
+  assert.equal(quantityRemoval(milk, { name: "Milk", quantity: 6, unit: "pack" }).ok, false);
+  assert.equal(quantityRemoval(milk, { name: "Milk", quantity: 2, unit: "kg" }).ok, false);
 });
 
 test("rejects invalid quantities and unknown commands", () => {

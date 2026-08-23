@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#6956e8">
+    <meta name="theme-color" content="#fff8f3">
     <meta
       http-equiv="Content-Security-Policy"
       content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'self'"
@@ -14,7 +14,7 @@
     >
     <title>Piko - Your shopping companion</title>
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Ctext y='.9em' font-size='90'%3E🛒%3C/text%3E%3C/svg%3E">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css?v=20260823-mobile">
     <script type="module" src="app.js?v=20260823-7"></script>
   </head>
   <body data-app-state="loading">
@@ -22,11 +22,11 @@
     <div class="ambient ambient-two" aria-hidden="true"></div>
 
     <header class="site-header">
+      <span class="header-symbol" aria-hidden="true">♩</span>
       <a class="brand" href="#main-content" aria-label="Piko home">
-        <span class="brand-mark" aria-hidden="true">P</span>
-        <span>Piko</span>
+        <span class="brand-mark">PIKO</span>
       </a>
-      <span class="local-badge"><span aria-hidden="true">●</span> Saved on this device</span>
+      <span class="local-badge" title="Saved on this device"><span aria-hidden="true">◎</span><span class="local-label">On device</span></span>
     </header>
 
     <main id="main-content" class="app-shell">
@@ -36,7 +36,7 @@
         <p class="intro">Build your list, stay organized, and make the next store run feel lighter.</p>
       </section>
 
-      <section class="assistant-card" data-voice-state="idle" aria-labelledby="assistant-title">
+      <section id="voice-settings" class="assistant-card" data-voice-state="idle" aria-labelledby="assistant-title">
         <div class="assistant-main">
           <div class="assistant-toolbar">
             <span class="state-pill"><span class="state-dot" aria-hidden="true"></span> <span id="voice-state-label">Ready</span></span>
@@ -93,7 +93,7 @@
       </section>
 
       <div class="content-grid">
-        <section class="add-card" aria-labelledby="add-title">
+        <section id="quick-add" class="add-card" aria-labelledby="add-title">
           <div class="section-heading compact-heading">
             <div>
               <p class="eyebrow">Quick add</p>
@@ -160,11 +160,11 @@
           </div>
         </section>
 
-        <section class="list-card" aria-labelledby="list-title">
+        <section id="shopping-list" class="list-card" aria-labelledby="list-title">
           <div class="section-heading list-heading">
             <div>
-              <p class="eyebrow">Today’s basket</p>
-              <h2 id="list-title">My shopping list</h2>
+              <p class="eyebrow">Items to buy</p>
+              <h2 id="list-title">Current List</h2>
             </div>
             <div class="list-actions">
               <span id="list-summary" class="summary-badge">0 items</span>
@@ -245,6 +245,13 @@
         </div>
       </section>
     </main>
+
+    <nav class="bottom-nav" aria-label="Primary navigation">
+      <a href="#main-content"><span aria-hidden="true">⌂</span><small>Home</small></a>
+      <a href="#shopping-list"><span aria-hidden="true">☷</span><small>Lists</small></a>
+      <a href="#recommendations"><span aria-hidden="true">♡</span><small>Recommendations</small></a>
+      <a href="#voice-settings"><span aria-hidden="true">⚙</span><small>Settings</small></a>
+    </nav>
 
     <div id="feedback" class="feedback" role="status" aria-live="polite" hidden>
       <span class="feedback-icon" aria-hidden="true"></span>

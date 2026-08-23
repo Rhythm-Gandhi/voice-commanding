@@ -11,14 +11,16 @@ Piko is a cheerful, mobile-first shopping list manager with multilingual voice c
 - Native voice recognition and typed fallback through one command pipeline
 - English/Hinglish, Hindi, and Spanish add, remove, quantity, search, substitute, and suggestion commands
 - Natural space-separated grocery commands with multilingual filler-word filtering
-- Grocery spelling suggestions that require confirmation before correction
+- Conservative speech repair with an accessible Confirm / Edit / Cancel step (`add 5x` → suggested `Add 5 eggs`)
 - Categorized shopping list with editing, completion, quantities, persistence, and clear/reset controls
 - Duplicate-safe additions that update an existing matching item instead of creating another card
-- Expanded Produce, Dairy, Bakery, Frozen, Meat & Seafood, Asian Pantry, Personal Care, Household, and pantry sorting
+- One canonical category taxonomy: Produce, Dairy & Eggs, Grains & Staples, Snacks, Beverages, Household, Personal Care, and Other
 - Native list sharing with clipboard fallback and dependency-free PNG export
 - Explainable regular, likely-needed, seasonal, demonstration-deal, and substitute recommendations
 - Optional, clearly labelled demo history for immediate evaluation
 - Structured local-catalog search by product, category, brand, price, size, attribute, and availability
+- Compact brand/variant selection with follow-up references such as “the second one,” “Tata,” and “the cheapest one”
+- Integer-paise product totals; completed and generic unpriced reminders are explicitly excluded
 - Polished result, unavailable-product, substitute, sale, empty, loading, success, and error states
 - Accessible keyboard controls, visible focus, reduced-motion support, and responsive mobile design
 
@@ -26,7 +28,7 @@ Piko is a cheerful, mobile-first shopping list manager with multilingual voice c
 
 Piko uses semantic HTML, modern CSS, and browser-native JavaScript. There is no framework, package manager, build step, backend, database, external catalog, or retailer API.
 
-`app.js` contains pure deterministic parser, recommendation, and catalog-filter functions followed by the DOM application layer. Voice and typed input share `parseCommand()` and the same action executor. The versioned list, preferences, and bounded shopping history are stored in `localStorage`; search results remain temporary. User text is rendered with safe DOM APIs rather than HTML injection.
+`app.js` keeps the dependency-free project compact while separating pure functions for transcript preprocessing, intent/quantity parsing, multilingual aliases, category normalization, migration, catalog filtering, variant selection, and recommendations from the DOM application layer. Voice and typed input share `parseCommand()` and the same action executor. The versioned list, preferences, and bounded shopping history are stored in `localStorage`; search and conversation state remain temporary. User text is rendered with safe DOM APIs rather than HTML injection.
 
 ## Run locally
 
@@ -52,6 +54,9 @@ mujhe atta dhoodh chini chahiye
 2 kilo atta
 dhoodh 2 packet
 chini hata do
+increase चीनी by 2
+Doodh 3 packet kar do
+Mark milk as completed
 Add one kilo bajra
 500 gram ragi
 2 packet poha
@@ -62,6 +67,11 @@ Remove milk from my list
 Change apples quantity to 10
 What am I running low on?
 Find Colgate toothpaste under ₹200
+Find rice between ₹100 and ₹500
+Show one litre milk
+Show sugar brands
+the second one
+two packets
 दो बोतल दूध जोड़ो
 दूध दिखाओ
 Añade dos botellas de leche
@@ -76,7 +86,11 @@ Select **Load demo history** to add explicitly labelled sample events for milk, 
 
 ## Product search
 
-Search commands extract independent filters and combine them against a 22-product local demonstration catalog priced in Indian rupees (₹). Sale prices are used for price filtering when applicable. Prices, sales, brands, availability, seasonal information, and substitutes are demonstration data, not live retailer claims. Adding a result routes through the existing list, history, categorization, and recommendation logic.
+Search commands extract independent filters and combine them against a local demonstration catalog priced in Indian rupees (₹). Filters support flexible product/brand order, exact size, attributes, minimum/maximum price, and ranges. Removable filter chips expose the interpretation. Sugar variants demonstrate temporary follow-up selection by position, brand, or relative price, followed by quantity. Prices, sales, availability, and substitutes are demo data—not live retailer claims.
+
+## Persistence and migration
+
+Storage schema version 2 assigns each known multilingual product one canonical identity and normalizes legacy categories. On first load, version 1 data is validated, invalid parser fragments are removed, compatible duplicates are merged, and incompatible units stay separate. The migrated version is written once, making cleanup idempotent.
 
 ## Testing
 
@@ -86,7 +100,7 @@ Run the complete dependency-free test suite with a current Node.js release:
 node --test app.test.mjs
 ```
 
-The suite covers validation, multilingual commands, quantities, recommendations, recency suppression, seasonal data, substitutes, structured search filters, no results, unavailable products, and search-result list/history integration.
+The 45-test suite covers validation, multilingual identity, safe transcript repair, quantities and incompatible units, migration idempotency, completion, recommendations, substitutes, price ranges, exact sizes, structured search, variant selection, and integer-paise totals.
 
 ## Privacy and security
 
@@ -96,7 +110,8 @@ Piko stores only list data, preferences, and item-event history under `piko:shop
 
 - Speech recognition and language quality depend on browser/platform support and may require an online provider service.
 - Catalog, price, sale, season, availability, and substitute data are curated demonstrations rather than live inventory.
-- Multilingual parsing intentionally supports practical shopping phrases rather than unrestricted translation.
+- Multilingual parsing intentionally supports practical English, Hindi, Hinglish, and existing Spanish shopping phrases rather than unrestricted translation.
+- Conversation context is intentionally session-only and currently demonstrates local Sugar variants; no brand preference is silently saved.
 - Predictions require repeated shopping days unless demo history is loaded.
 
 ## Approach (200 words maximum)

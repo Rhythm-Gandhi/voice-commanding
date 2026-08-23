@@ -1,18 +1,24 @@
 const STORAGE_KEY = "piko:shopping:v1";
+const STORAGE_VERSION = 2;
 const MAX_NAME_LENGTH = 60;
 const MIN_QUANTITY = 0.25;
 const MAX_QUANTITY = 999;
 const DAY_MS = 86_400_000;
 
 const CATALOG = [
-  { id: "milk-whole", name: "Milk", category: "Dairy", brand: "Farm Fresh", price: 68, salePrice: null, size: "1 L", sizeClass: "large", attributes: ["whole"], seasonalMonths: [], available: false, substitutes: ["Oat milk", "Almond milk", "Soy milk"] },
-  { id: "milk-oat", name: "Oat milk", category: "Dairy", brand: "Oatly", price: 210, salePrice: 189, size: "1 L", sizeClass: "large", attributes: ["vegan", "dairy-free"], seasonalMonths: [], available: true, substitutes: ["Almond milk", "Soy milk"] },
-  { id: "milk-almond", name: "Almond milk", category: "Dairy", brand: "NutriLife", price: 215, salePrice: null, size: "1 L", sizeClass: "large", attributes: ["vegan", "dairy-free"], seasonalMonths: [], available: true, substitutes: ["Oat milk", "Soy milk"] },
-  { id: "milk-soy", name: "Soy milk", category: "Dairy", brand: "SoyGood", price: 175, salePrice: null, size: "1 L", sizeClass: "large", attributes: ["vegan", "dairy-free"], seasonalMonths: [], available: true, substitutes: ["Oat milk", "Almond milk"] },
-  { id: "bread-whole", name: "Bread", category: "Bakery", brand: "Daily Bake", price: 55, salePrice: 45, size: "500 g", sizeClass: "medium", attributes: ["whole wheat"], seasonalMonths: [], available: true, substitutes: ["Whole wheat bread", "Tortillas"] },
-  { id: "bread-organic", name: "Whole wheat bread", category: "Bakery", brand: "Earth Loaf", price: 95, salePrice: null, size: "450 g", sizeClass: "medium", attributes: ["organic", "whole wheat"], seasonalMonths: [], available: true, substitutes: ["Bread", "Tortillas"] },
-  { id: "tortillas", name: "Tortillas", category: "Bakery", brand: "Casa Sol", price: 160, salePrice: null, size: "8 pack", sizeClass: "medium", attributes: ["vegetarian"], seasonalMonths: [], available: true, substitutes: ["Bread"] },
-  { id: "eggs", name: "Eggs", category: "Dairy", brand: "Happy Hen", price: 90, salePrice: 78, size: "12 pack", sizeClass: "medium", attributes: ["free-range"], seasonalMonths: [], available: true, substitutes: ["Tofu", "Egg substitute"] },
+  { id: "milk-whole", productId: "milk", name: "Milk", category: "Dairy & Eggs", brand: "Farm Fresh", price: 68, salePrice: null, size: "1 L", sizeClass: "large", attributes: ["whole"], seasonalMonths: [], available: false, substitutes: ["Oat milk", "Almond milk", "Soy milk"] },
+  { id: "milk-amul", productId: "milk", name: "Amul Toned Milk", category: "Dairy & Eggs", brand: "Amul", price: 72, salePrice: 68, size: "1 L", sizeClass: "large", attributes: ["toned"], seasonalMonths: [], available: true, substitutes: ["Oat milk", "Almond milk"] },
+  { id: "milk-oat", name: "Oat milk", category: "Dairy & Eggs", brand: "Oatly", price: 210, salePrice: 189, size: "1 L", sizeClass: "large", attributes: ["vegan", "dairy-free"], seasonalMonths: [], available: true, substitutes: ["Almond milk", "Soy milk"] },
+  { id: "milk-almond", name: "Almond milk", category: "Dairy & Eggs", brand: "NutriLife", price: 215, salePrice: null, size: "1 L", sizeClass: "large", attributes: ["vegan", "dairy-free"], seasonalMonths: [], available: true, substitutes: ["Oat milk", "Soy milk"] },
+  { id: "milk-soy", name: "Soy milk", category: "Dairy & Eggs", brand: "SoyGood", price: 175, salePrice: null, size: "1 L", sizeClass: "large", attributes: ["vegan", "dairy-free"], seasonalMonths: [], available: true, substitutes: ["Oat milk", "Almond milk"] },
+  { id: "bread-whole", name: "Bread", category: "Grains & Staples", brand: "Daily Bake", price: 55, salePrice: 45, size: "500 g", sizeClass: "medium", attributes: ["whole wheat"], seasonalMonths: [], available: true, substitutes: ["Whole wheat bread", "Tortillas"] },
+  { id: "bread-organic", name: "Whole wheat bread", category: "Grains & Staples", brand: "Earth Loaf", price: 95, salePrice: null, size: "450 g", sizeClass: "medium", attributes: ["organic", "whole wheat"], seasonalMonths: [], available: true, substitutes: ["Bread", "Tortillas"] },
+  { id: "tortillas", name: "Tortillas", category: "Grains & Staples", brand: "Casa Sol", price: 160, salePrice: null, size: "8 pack", sizeClass: "medium", attributes: ["vegetarian"], seasonalMonths: [], available: true, substitutes: ["Bread"] },
+  { id: "eggs", productId: "eggs", name: "Eggs", category: "Dairy & Eggs", brand: "Happy Hen", price: 90, salePrice: 78, size: "12 pack", sizeClass: "medium", attributes: ["free-range"], seasonalMonths: [], available: true, substitutes: ["Tofu", "Egg substitute"] },
+  { id: "sugar-madhur", productId: "sugar", name: "Madhur Pure Sugar", category: "Grains & Staples", brand: "Madhur", price: 52, salePrice: null, size: "1 kg", sizeClass: "medium", attributes: [], seasonalMonths: [], available: true, substitutes: [] },
+  { id: "sugar-tata", productId: "sugar", name: "Tata Sugar", category: "Grains & Staples", brand: "Tata", price: 55, salePrice: 51, size: "1 kg", sizeClass: "medium", attributes: [], seasonalMonths: [], available: true, substitutes: [] },
+  { id: "sugar-trust", productId: "sugar", name: "Trust Classic Sugar", category: "Grains & Staples", brand: "Trust", price: 48, salePrice: null, size: "1 kg", sizeClass: "medium", attributes: [], seasonalMonths: [], available: true, substitutes: [] },
+  { id: "rice-india-gate", productId: "rice", name: "India Gate Basmati Rice", category: "Grains & Staples", brand: "India Gate", price: 420, salePrice: 399, size: "5 kg", sizeClass: "large", attributes: [], seasonalMonths: [], available: true, substitutes: [] },
   { id: "apples-organic", name: "Organic Gala Apples", category: "Produce", brand: "Green Orchard", price: 240, salePrice: 210, size: "1 kg", sizeClass: "medium", attributes: ["organic", "fruit"], seasonalMonths: [7, 8, 9, 10], available: true, substitutes: ["Apples", "Oranges"] },
   { id: "apples", name: "Apples", category: "Produce", brand: "Fresh Fields", price: 170, salePrice: null, size: "1 kg", sizeClass: "medium", attributes: ["fruit"], seasonalMonths: [7, 8, 9, 10], available: true, substitutes: ["Organic Gala Apples", "Oranges"] },
   { id: "bananas-organic", name: "Organic Bananas", category: "Produce", brand: "Nature Crop", price: 80, salePrice: null, size: "6 pack", sizeClass: "medium", attributes: ["organic", "fruit"], seasonalMonths: [], available: true, substitutes: ["Apples"] },
@@ -29,46 +35,48 @@ const CATALOG = [
   { id: "dove-shampoo", name: "Dove Daily Shine Shampoo", category: "Personal Care", brand: "Dove", price: 275, salePrice: 249, size: "400 mL", sizeClass: "large", attributes: ["moisturizing"], seasonalMonths: [], available: true, substitutes: [] }
 ];
 
+const CATEGORY_ALIASES = {
+  Produce: "Produce", Dairy: "Dairy & Eggs", "Dairy & Eggs": "Dairy & Eggs", Bakery: "Grains & Staples",
+  Snacks: "Snacks", Beverages: "Beverages", Frozen: "Other", "Meat & Seafood": "Other",
+  Household: "Household", "Personal Care": "Personal Care", "Asian Pantry": "Grains & Staples",
+  "Grains / Pantry": "Grains & Staples", "Pulses / Pantry": "Grains & Staples", Spices: "Grains & Staples",
+  Pantry: "Grains & Staples", "Grains & Staples": "Grains & Staples", Other: "Other"
+};
+
 const CATEGORIES = {
   Produce: { icon: "🥬", keywords: ["sweet corn", "corn", "apple", "banana", "orange", "grape", "lemon", "lime", "mango", "berry", "berries", "tomato", "potato", "onion", "garlic", "carrot", "spinach", "lettuce", "broccoli", "cucumber", "avocado", "fruit", "vegetable", "coriander", "cilantro", "सेब", "केला", "केले", "संतरा", "आलू", "प्याज", "पालक", "manzana", "manzanas", "plátano", "plátanos", "naranja", "naranjas", "patata", "cebolla", "espinaca"] },
-  Dairy: { icon: "🥛", keywords: ["milk", "cheese", "yogurt", "yoghurt", "butter", "cream", "paneer", "egg", "दूध", "पनीर", "अंडा", "अंडे", "leche", "queso", "huevo", "huevos"] },
-  Bakery: { icon: "🥖", keywords: ["brown bread", "bread", "bun", "bagel", "croissant", "cake", "muffin", "tortilla", "ब्रेड", "रोटी", "pan"] },
+  "Dairy & Eggs": { icon: "🥛", keywords: ["milk", "cheese", "yogurt", "yoghurt", "butter", "cream", "paneer", "egg", "दूध", "पनीर", "अंडा", "अंडे", "leche", "queso", "huevo", "huevos"] },
+  "Grains & Staples": { icon: "🌾", keywords: ["mustard seeds", "brown bread", "bread", "bun", "bagel", "tortilla", "soy sauce", "noodles", "tofu", "makki", "bajra", "jowar", "ragi", "atta", "aata", "maida", "suji", "poha", "besan", "rice", "chawal", "flour", "sugar", "shakkar", "sakkar", "chini", "salt", "oil", "dal", "lentil", "rajma", "chana", "moong", "masoor", "urad", "jeera", "haldi", "dhaniya", "आटा", "चावल", "चीनी", "शक्कर", "दाल", "ब्रेड", "रोटी", "pan"] },
   Snacks: { icon: "🍿", keywords: ["chips", "crisps", "cookie", "cookies", "biscuit", "chocolate", "candy", "popcorn", "nuts", "चिप्स", "बिस्कुट", "galleta", "galletas"] },
   Beverages: { icon: "🧃", keywords: ["coconut water", "water", "juice", "soda", "coffee", "tea", "cola", "drink", "पानी", "जूस", "चाय", "agua", "jugo", "café", "cafe"] },
-  Frozen: { icon: "🧊", keywords: ["frozen peas", "frozen corn", "frozen vegetables", "ice cream", "frozen pizza", "फ्रोजन मटर", "helado"] },
-  "Meat & Seafood": { icon: "🐟", keywords: ["chicken", "mutton", "beef", "pork", "fish", "salmon", "prawn", "prawns", "shrimp", "tuna", "चिकन", "मछली", "pollo", "pescado"] },
   Household: { icon: "🧽", keywords: ["dish soap", "detergent", "cleaner", "tissue", "toilet paper", "paper towel", "sponge", "garbage bag", "trash bag"] },
   "Personal Care": { icon: "🧴", keywords: ["soap", "toothpaste", "shampoo", "conditioner", "body wash", "deodorant", "toothbrush", "साबुन", "टूथपेस्ट", "jabón", "jabon", "champú", "champu"] },
-  "Asian Pantry": { icon: "🍜", keywords: ["soy sauce", "noodles", "ramen", "tofu", "miso", "coconut milk", "curry paste", "rice paper", "sesame oil", "nori", "kimchi", "चाउमीन", "सोया सॉस"] },
-  "Grains / Pantry": { icon: "🌾", keywords: ["makki ka atta", "makki atta", "corn flour", "maize flour", "makki", "bajra", "jowar", "ragi", "atta", "aata", "maida", "suji", "semolina", "poha", "besan", "makhana", "sabudana", "rice", "chawal", "chaawal", "flour", "आटा", "चावल"] },
-  "Pulses / Pantry": { icon: "🫘", keywords: ["dal", "daal", "lentil", "lentils", "rajma", "chana", "moong", "masoor", "urad", "दाल"] },
-  Spices: { icon: "🫚", keywords: ["mustard seeds", "coriander seeds", "jeera", "haldi", "dhaniya", "cumin", "turmeric"] },
-  Pantry: { icon: "🥫", keywords: ["olive oil", "rice", "pasta", "flour", "sugar", "salt", "oil", "cereal", "oats", "spice", "sauce", "beans", "lentil", "dal", "चावल", "आटा", "चीनी", "नमक", "दाल", "arroz", "harina", "azúcar", "azucar", "sal", "aceite"] },
   Other: { icon: "🧺", keywords: [] }
 };
 
 // One identity per product keeps parsing, duplicates, removal, categories and history consistent.
 const PRODUCT_ALIASES = {
-  flour: { display: "Atta", category: "Grains / Pantry", aliases: ["flour", "wheat flour", "atta", "aata", "आटा"] },
-  "corn-flour": { display: "Makki ka Atta", category: "Grains / Pantry", aliases: ["makki", "makki ka atta", "makki atta", "corn flour", "maize flour"] },
-  milk: { display: "Doodh", category: "Dairy", aliases: ["milk", "doodh", "dudh", "dhoodh", "dhudh", "दूध", "leche"] },
-  sugar: { display: "Chini", category: "Pantry", aliases: ["sugar", "chini", "cheeni", "चीनी", "azúcar", "azucar"] },
-  rice: { display: "Chawal", category: "Grains / Pantry", aliases: ["rice", "chawal", "chaawal", "चावल", "arroz"] },
-  lentils: { display: "Dal", category: "Pulses / Pantry", aliases: ["lentil", "lentils", "dal", "daal", "दाल"] },
-  oil: { display: "Tel", category: "Pantry", aliases: ["oil", "tel", "tail", "तेल", "aceite"] },
-  salt: { display: "Namak", category: "Pantry", aliases: ["salt", "namak", "नमक", "sal"] },
-  eggs: { display: "Anda", category: "Dairy", aliases: ["egg", "eggs", "anda", "ande", "अंडा", "अंडे", "huevo", "huevos"] },
+  flour: { display: "Flour", category: "Grains & Staples", aliases: ["flour", "wheat flour", "atta", "aata", "आटा"] },
+  "corn-flour": { display: "Makki ka Atta", category: "Grains & Staples", aliases: ["makki", "makki ka atta", "makki atta", "corn flour", "maize flour"] },
+  milk: { display: "Milk", category: "Dairy & Eggs", aliases: ["milk", "doodh", "dudh", "dhoodh", "dhudh", "दूध", "leche"] },
+  sugar: { display: "Sugar", category: "Grains & Staples", aliases: ["sugar", "shakkar", "sakkar", "sakar", "chini", "cheeni", "चीनी", "शक्कर", "azúcar", "azucar"] },
+  rice: { display: "Rice", category: "Grains & Staples", aliases: ["rice", "chawal", "chaawal", "चावल", "arroz"] },
+  lentils: { display: "Lentils", category: "Grains & Staples", aliases: ["lentil", "lentils", "dal", "daal", "दाल"] },
+  oil: { display: "Oil", category: "Grains & Staples", aliases: ["oil", "tel", "tail", "तेल", "aceite"] },
+  "olive-oil": { display: "Olive Oil", category: "Grains & Staples", aliases: ["olive oil"] },
+  salt: { display: "Salt", category: "Grains & Staples", aliases: ["salt", "namak", "नमक", "sal"] },
+  eggs: { display: "Eggs", category: "Dairy & Eggs", aliases: ["egg", "eggs", "anda", "ande", "अंडा", "अंडे", "huevo", "huevos"] },
   potato: { display: "Aloo", category: "Produce", aliases: ["potato", "potatoes", "aloo", "aalu", "alu", "आलू", "patata"] },
   onion: { display: "Pyaaz", category: "Produce", aliases: ["onion", "onions", "pyaaz", "pyaz", "प्याज", "cebolla"] },
   tomato: { display: "Tamatar", category: "Produce", aliases: ["tomato", "tomatoes", "tamatar", "tamater", "टमाटर"] },
   soap: { display: "Sabun", category: "Personal Care", aliases: ["soap", "sabun", "saabun", "साबुन", "jabón", "jabon"] },
-  bread: { display: "Bread", category: "Bakery", aliases: ["bread", "ब्रेड", "pan"] },
-  butter: { display: "Makhan", category: "Dairy", aliases: ["butter", "makhan", "मक्खन"] },
-  paneer: { display: "Paneer", category: "Dairy", aliases: ["paneer", "पनीर"] },
-  yogurt: { display: "Dahi", category: "Dairy", aliases: ["yogurt", "yoghurt", "dahi", "दही"] }
+  bread: { display: "Bread", category: "Grains & Staples", aliases: ["bread", "ब्रेड", "pan"] },
+  butter: { display: "Butter", category: "Dairy & Eggs", aliases: ["butter", "makhan", "मक्खन"] },
+  paneer: { display: "Paneer", category: "Dairy & Eggs", aliases: ["paneer", "पनीर"] },
+  yogurt: { display: "Yogurt", category: "Dairy & Eggs", aliases: ["yogurt", "yoghurt", "dahi", "दही"] }
 };
 const ALIAS_TO_PRODUCT = new Map(Object.entries(PRODUCT_ALIASES).flatMap(([key, product]) => product.aliases.map((alias) => [normalizeItemName(alias).toLocaleLowerCase(), { key, ...product }])));
-const ROMANIZED_DISPLAY_ALIASES = new Set(["atta", "aata", "doodh", "dudh", "dhoodh", "dhudh", "chini", "cheeni", "chawal", "chaawal", "dal", "daal", "tel", "tail", "namak", "anda", "ande", "aloo", "aalu", "alu", "pyaaz", "pyaz", "tamatar", "tamater", "sabun", "saabun", "makhan", "dahi", "makki", "makki ka atta", "makki atta", "corn flour", "maize flour"]);
+const ROMANIZED_DISPLAY_ALIASES = new Set(Object.values(PRODUCT_ALIASES).flatMap(({ aliases }) => aliases));
 const AMBIGUOUS_PRODUCT_PAIRS = [["corn", "corn-flour"], ["sweet corn", "corn-flour"]];
 
 const GROCERY_TERMS = [...new Set([
@@ -116,6 +124,7 @@ function validateItemName(value) {
   if (!name) return "Enter an item name.";
   if (name.length > MAX_NAME_LENGTH) return `Keep the item name under ${MAX_NAME_LENGTH} characters.`;
   if (!/[\p{L}\p{N}]/u.test(name)) return "Use at least one letter or number.";
+  if (/^\d+\s*x$/iu.test(name) || /^(?:add|buy|remove|delete|get|put|show|find)$/iu.test(name)) return "That looks like a command fragment, not a grocery item.";
   return "";
 }
 
@@ -143,15 +152,20 @@ function categorizeItem(value) {
   return "Other";
 }
 
+function normalizeCategory(value) {
+  return CATEGORY_ALIASES[value] ?? "Other";
+}
+
 function createEmptyStore() {
-  return { version: 1, list: { items: [] }, history: [], preferences: {} };
+  return { version: STORAGE_VERSION, list: { items: [] }, history: [], preferences: {} };
 }
 
 function dedupeItems(items) {
   const deduped = [];
   for (const original of items) {
-    const item = { ...original, name: friendlyItemName(original.name) };
-    const existing = deduped.find((candidate) => !candidate.completed && !item.completed && itemKey(candidate.name) === itemKey(item.name));
+    const item = { ...original, name: friendlyItemName(original.name), canonicalProductId: original.canonicalProductId ?? itemKey(original.name) };
+    const existing = deduped.find((candidate) => !candidate.completed && !item.completed
+      && candidate.canonicalProductId === item.canonicalProductId && candidate.productId === item.productId && candidate.unit === item.unit);
     if (existing && existing.quantity + item.quantity <= MAX_QUANTITY) {
       existing.quantity = Math.round((existing.quantity + item.quantity) * 100) / 100;
       existing.updatedAt = existing.updatedAt > item.updatedAt ? existing.updatedAt : item.updatedAt;
@@ -165,6 +179,12 @@ function dedupeItems(items) {
 function itemKey(value) {
   const key = normalizeItemName(value).toLocaleLowerCase();
   return ALIAS_TO_PRODUCT.get(key)?.key ?? key;
+}
+
+function sameListItem(left, right) {
+  const leftKey = left.canonicalProductId ?? itemKey(left.name);
+  const rightKey = right.canonicalProductId ?? itemKey(right.name);
+  return leftKey === rightKey && (left.productId ?? "") === (right.productId ?? "");
 }
 
 function findAmbiguousItem(name, items, excludedId = "") {
@@ -525,8 +545,19 @@ function catalogPrice(product) {
 }
 
 function parseCatalogSearch(value, language = "en", catalog = CATALOG) {
-  let text = normalizeCommand(value);
+  let text = replaceNumberWords(normalizeCommand(value), language);
   const filters = {};
+  const rangePatterns = {
+    en: /\bbetween\s*(?:₹|rs\.?|inr)?\s*(\d+(?:[.,]\d+)?)\s*(?:and|to)\s*(?:₹|rs\.?|inr)?\s*(\d+(?:[.,]\d+)?)\b/u,
+    hi: /(?:₹)?\s*(\d+(?:[.,]\d+)?)\s*(?:से|और)\s*(?:₹)?\s*(\d+(?:[.,]\d+)?)\s*(?:रुपये)?\s*(?:के\s+बीच|तक)/u,
+    es: /\bentre\s*(?:₹|rs\.?|inr)?\s*(\d+(?:[.,]\d+)?)\s*(?:y|a)\s*(?:₹|rs\.?|inr)?\s*(\d+(?:[.,]\d+)?)\b/u
+  };
+  const range = text.match(rangePatterns[language]);
+  if (range) {
+    filters.minPrice = Number(range[1].replace(",", "."));
+    filters.maxPrice = Number(range[2].replace(",", "."));
+    text = text.replace(range[0], " ");
+  }
   const pricePatterns = {
     en: {
       maxPrice: /\b(?:under|below|less than|up to)\s*(?:₹|rs\.?|inr)?\s*(\d+(?:[.,]\d+)?)\s*(?:rupees?)?\b/u,
@@ -542,11 +573,24 @@ function parseCatalogSearch(value, language = "en", catalog = CATALOG) {
     }
   };
   for (const [key, pattern] of Object.entries(pricePatterns[language])) {
+    if (filters[key] !== undefined) continue;
     const match = text.match(pattern);
     if (match) {
       filters[key] = Number(match[1].replace(",", "."));
       text = text.replace(match[0], " ");
     }
+  }
+
+  const hinglishMax = text.match(/(?:₹)?\s*(\d+(?:[.,]\d+)?)\s*(?:rupaye|rupees?|rs\.?)\s+ke\s+andar/u);
+  if (hinglishMax) {
+    filters.maxPrice = Number(hinglishMax[1].replace(",", "."));
+    text = text.replace(hinglishMax[0], " ");
+  }
+
+  const exactSize = text.match(/\b(\d+(?:[.,]\d+)?)\s*(kg|g|l|litre|liter|ml|pack|packet)\b/u);
+  if (exactSize) {
+    filters.exactSize = `${Number(exactSize[1].replace(",", "."))} ${exactSize[2] === "litre" || exactSize[2] === "liter" ? "l" : exactSize[2] === "packet" ? "pack" : exactSize[2]}`;
+    text = text.replace(exactSize[0], " ");
   }
 
   const brand = [...new Set(catalog.map(({ brand }) => brand))]
@@ -594,14 +638,11 @@ function parseCatalogSearch(value, language = "en", catalog = CATALOG) {
 
   const categoryAliases = {
     Produce: ["fruit", "fruits", "produce", "fruta", "frutas", "फल"],
-    Dairy: ["dairy", "lácteos", "lacteos", "डेयरी"],
-    Bakery: ["bakery", "panadería", "panaderia", "बेकरी"],
+    "Dairy & Eggs": ["dairy", "eggs", "lácteos", "lacteos", "डेयरी"],
+    "Grains & Staples": ["bakery", "grains", "staples", "pantry", "panadería", "panaderia", "बेकरी"],
     Beverages: ["beverage", "beverages", "drinks", "bebida", "bebidas", "पेय"],
-    Frozen: ["frozen", "congelado", "congelados", "फ्रोजन"],
-    "Meat & Seafood": ["meat", "seafood", "carne", "mariscos", "मांस", "मछली"],
     Household: ["household", "hogar", "घरेलू"],
-    "Personal Care": ["personal care", "hygiene", "cuidado personal", "निजी देखभाल"],
-    "Asian Pantry": ["asian pantry", "asian food", "despensa asiática", "एशियाई पेंट्री"]
+    "Personal Care": ["personal care", "hygiene", "cuidado personal", "निजी देखभाल"]
   };
   for (const [category, aliases] of Object.entries(categoryAliases)) {
     const alias = aliases.find((candidate) => new RegExp(`(^|\\s)${escapeRegex(candidate)}(?=$|\\s)`, "u").test(text));
@@ -613,7 +654,7 @@ function parseCatalogSearch(value, language = "en", catalog = CATALOG) {
   }
 
   const queryAliases = {
-    hi: { दूध: "milk", पानी: "water", सेब: "apples", टूथपेस्ट: "toothpaste", साबुन: "soap" },
+    hi: { दूध: "milk", पानी: "water", सेब: "apples", seb: "apples", shakkar: "sugar", sakkar: "sugar", टूथपेस्ट: "toothpaste", साबुन: "soap" },
     es: { leche: "milk", agua: "water", manzana: "apples", manzanas: "apples", "pasta de dientes": "toothpaste", jabón: "soap", jabon: "soap" }
   };
   for (const [word, replacement] of Object.entries(queryAliases[language] ?? {})) {
@@ -621,11 +662,11 @@ function parseCatalogSearch(value, language = "en", catalog = CATALOG) {
   }
 
   text = text
-    .replace(/\b(?:me|some|the|products?|items?|bottles?|of|please|por favor|productos?|botellas?|de|मुझे|कुछ|उत्पाद|बोतलें?|की|के|का)\b/gu, " ")
+    .replace(/\b(?:me|some|the|products?|brands?|items?|bottles?|of|please|show|find|dikhao|dikhाओ|por favor|productos?|botellas?|de|mujhe|koi|ke|andar|rupaye|मुझे|कुछ|उत्पाद|बोतलें?|दिखाओ|की|के|का)\b/gu, " ")
     .replace(/₹/g, " ")
     .replace(/\s+/g, " ")
     .trim();
-  if (text) filters.query = text;
+  if (text) filters.query = ALIAS_TO_PRODUCT.has(text) ? itemKey(text) : text;
   return filters;
 }
 
@@ -633,13 +674,14 @@ function searchCatalog(filters, catalog = CATALOG) {
   const queryWords = normalizeCommand(filters.query ?? "").split(/\s+/u).filter(Boolean);
   return catalog.filter((product) => {
     const price = catalogPrice(product);
-    const aliases = PRODUCT_ALIASES[itemKey(product.name)]?.aliases ?? [];
+    const aliases = PRODUCT_ALIASES[product.productId ?? itemKey(product.name)]?.aliases ?? [];
     const haystack = normalizeCommand([product.name, product.brand, product.category, ...product.attributes, ...aliases].join(" "));
     return (!filters.brand || itemKey(product.brand) === itemKey(filters.brand))
       && (!filters.category || product.category === filters.category)
       && (filters.minPrice === undefined || price >= filters.minPrice)
       && (filters.maxPrice === undefined || price <= filters.maxPrice)
       && (!filters.size || product.sizeClass === filters.size)
+      && (!filters.exactSize || normalizeCommand(product.size) === filters.exactSize)
       && (!filters.attributes || filters.attributes.every((attribute) => product.attributes.includes(attribute)))
       && (!filters.availableOnly || product.available)
       && queryWords.every((word) => haystack.includes(word));
@@ -647,7 +689,48 @@ function searchCatalog(filters, catalog = CATALOG) {
 }
 
 function productListItem(product) {
-  return { name: product.name, quantity: 1, unit: "item", category: product.category };
+  return {
+    name: product.name,
+    canonicalProductId: product.productId ?? itemKey(product.name),
+    productId: product.id,
+    brand: product.brand,
+    size: product.size,
+    unitPricePaise: Math.round(catalogPrice(product) * 100),
+    quantity: 1,
+    unit: "pack",
+    category: product.category
+  };
+}
+
+function productVariants(productId, catalog = CATALOG) {
+  return catalog.filter((product) => product.productId === productId && product.available).slice(0, 5);
+}
+
+function selectProductVariant(value, results) {
+  const text = normalizeCommand(value);
+  if (!results.length) return null;
+  if (/\b(?:cheapest|sabse sasti|sabse sasta)\b/u.test(text)) return [...results].sort((a, b) => catalogPrice(a) - catalogPrice(b))[0];
+  const positions = { first: 0, "1st": 0, pehla: 0, second: 1, "2nd": 1, dusra: 1, doosra: 1, third: 2, "3rd": 2, teesra: 2 };
+  for (const [word, index] of Object.entries(positions)) if (text.includes(word)) return results[index] ?? null;
+  return results.find((product) => text.includes(normalizeCommand(product.brand)) || text.includes(normalizeCommand(product.name))) ?? null;
+}
+
+function conversationQuantity(value, language = "en") {
+  const text = normalizeCommand(value).replace(/^(?:add\s+)?(?:quantity\s+)?/u, "").replace(/\s+(?:of\s+)?(?:those|them|wala|chahiye|add\s+karo)$/u, "");
+  return parseQuantityValue(text, language) ?? parseQuantityValue(text.split(" ")[0], language);
+}
+
+function transcriptCorrection(value, language = "en") {
+  const text = normalizeCommand(value);
+  if (language === "en" && /^(?:add|buy|get|i need)\s+\d+\s*x$/u.test(text)) {
+    const quantity = Number(text.match(/\d+/u)[0]);
+    return { raw: normalizeItemName(value), suggested: `Add ${quantity} eggs`, items: [{ name: "Eggs", quantity, unit: "item" }] };
+  }
+  return null;
+}
+
+function shouldHandleFinalSpeech(alreadyHandled, transcript) {
+  return !alreadyHandled && Boolean(normalizeItemName(transcript));
 }
 
 function parseCommand(value, recognitionLanguage = "en-US") {
@@ -661,6 +744,8 @@ function parseCommand(value, recognitionLanguage = "en-US") {
   text = text.replace(politeLead[language], "").trim();
   if (!text) return { ok: false, error: "Say or type a shopping command first." };
   if (text.length > 160) return { ok: false, error: "Keep commands under 160 characters." };
+  const correction = transcriptCorrection(text, language);
+  if (correction) return commandResult("add", language, { items: correction.items, unknown: [], confirmation: correction });
 
   const clearPatterns = {
     en: /^(?:clear|empty|delete|remove)\s+(?:my\s+)?(?:shopping\s+)?list$/u,
@@ -685,13 +770,35 @@ function parseCommand(value, recognitionLanguage = "en-US") {
   if (suggestionPatterns[language].test(text)) return commandResult("suggestion", language);
 
   const searchPatterns = {
-    en: [/^(?:search(?: for)?|find(?: me)?|look for|show(?: me)?)\s+(.+)$/u],
+    en: [/^(?:search(?: for)?|find(?: me)?|look for|show(?: me)?)\s+(.+)$/u, /^(.+?)\s+(?:show|find)(?:\s+me)?$/u, /^(?:under|below|between)\s+.+?,?\s+(?:show(?: me)?|find)\s+(.+)$/u],
     hi: [/^(?:खोजो|ढूँढो|ढूंढो|दिखाओ)\s+(.+)$/u, /^(.+)\s+(?:खोजो|ढूँढो|ढूंढो|दिखाओ)$/u],
     es: [/^(?:busca|encuentra|muestra(?:me)?)\s+(.+)$/u]
   };
   for (const pattern of searchPatterns[language]) {
     const match = text.match(pattern);
-    if (match) return commandResult("search", language, { query: capitalize(cleanItemName(match[1], language)), filters: parseCatalogSearch(match[1], language) });
+    if (match) {
+      const searchText = language === "en" && /^(?:under|below|between)\b/u.test(text) ? text : match[1];
+      return commandResult("search", language, { query: capitalize(cleanItemName(match[1], language)), filters: parseCatalogSearch(searchText, language) });
+    }
+  }
+  const hinglishSearch = text.match(/^(?:₹?\s*\d+(?:[.,]\d+)?\s*(?:rupaye|rs\.?)\s+ke\s+andar\s+)?(.+?)\s+(?:ke\s+brands?\s+)?(?:dikhao|dikhado|show\s+karo)$/u);
+  if (hinglishSearch) return commandResult("search", language, { query: capitalize(cleanItemName(hinglishSearch[1], language)), filters: parseCatalogSearch(text, language) });
+
+  const completionPatterns = {
+    en: /^(?:mark\s+(.+?)\s+(?:as\s+)?(?:complete|completed|done)|check\s+off\s+(.+))$/u,
+    hi: /^(.+?)\s+(?:complete|पूरा)\s+(?:करो|कर\s+दो)$/u,
+    es: /^(?:marca\s+(.+?)\s+como\s+(?:completado|hecho)|completa\s+(.+))$/u
+  };
+  const completionMatch = text.match(completionPatterns[language]);
+  if (completionMatch) return commandResult("complete", language, { name: friendlyItemName(cleanItemName(completionMatch[1] ?? completionMatch[2], language)) });
+
+  const hinglishCompletion = text.match(/^(.+?)\s+(?:complete|done)\s+(?:karo|kar\s+do)$/u);
+  if (hinglishCompletion) return commandResult("complete", language, { name: friendlyItemName(hinglishCompletion[1]) });
+
+  const hinglishSet = text.match(/^(.+?)\s+(.+?)\s+(?:kar\s+do|karo)$/u);
+  if (hinglishSet) {
+    const amount = parseQuantityValue(hinglishSet[2], language);
+    if (amount && !validateItemName(hinglishSet[1])) return commandResult("updateQuantity", language, { item: { name: friendlyItemName(hinglishSet[1]), ...amount }, operation: "set" });
   }
 
   const updatePatterns = {
@@ -705,15 +812,21 @@ function parseCommand(value, recognitionLanguage = "en-US") {
     const amount = parseQuantityValue(match[2], language);
     const name = cleanItemName(match[1], language);
     if (!amount || validateItemName(name)) return { ok: false, error: "I found the item, but not a valid quantity." };
-    return commandResult("updateQuantity", language, { item: { name: capitalize(name), ...amount }, operation: "set" });
+    return commandResult("updateQuantity", language, { item: { name: friendlyItemName(name), ...amount }, operation: "set" });
+  }
+
+  const directIncrease = text.match(/^increase\s+(.+?)\s+by\s+(.+)$/u);
+  if (directIncrease) {
+    const amount = parseQuantityValue(directIncrease[2], language);
+    if (amount && !validateItemName(directIncrease[1])) return commandResult("updateQuantity", language, { item: { name: friendlyItemName(directIncrease[1]), ...amount }, operation: "increment" });
   }
 
   const incrementPatterns = {
-    en: /^(?:add|get)\s+(.+?)\s+more\s+(.+)$/u,
+    en: [/^(?:add|get)\s+(.+?)\s+more\s+(.+)$/u],
     hi: /^(.+?)\s+और\s+(.+?)\s+(?:जोड़ो|डालो)$/u,
     es: /^(?:añade|agrega)\s+(.+?)\s+(?:más|mas)\s+(.+)$/u
   };
-  const incrementMatch = text.match(incrementPatterns[language]);
+  const incrementMatch = (Array.isArray(incrementPatterns[language]) ? incrementPatterns[language] : [incrementPatterns[language]]).map((pattern) => text.match(pattern)).find(Boolean);
   if (incrementMatch) {
     const amount = parseQuantityValue(incrementMatch[1], language);
     const name = cleanItemName(incrementMatch[2], language);
@@ -781,18 +894,33 @@ function parseCommand(value, recognitionLanguage = "en-US") {
 
 function validStoredItem(item) {
   if (!item || typeof item !== "object" || typeof item.id !== "string") return null;
-  const name = normalizeItemName(item.name);
+  const name = friendlyItemName(item.name);
   const quantity = parseQuantity(item.quantity);
   if (validateItemName(name) || quantity === null || !UNITS.has(item.unit)) return null;
   return {
     id: item.id,
     name,
+    canonicalProductId: item.canonicalProductId ?? itemKey(name),
+    productId: typeof item.productId === "string" ? item.productId : undefined,
+    brand: typeof item.brand === "string" ? item.brand : undefined,
+    size: typeof item.size === "string" ? item.size : undefined,
+    unitPricePaise: Number.isInteger(item.unitPricePaise) && item.unitPricePaise >= 0 ? item.unitPricePaise : undefined,
     quantity,
     unit: item.unit,
-    category: categorizeItem(name),
+    category: normalizeCategory(item.category) === "Other" ? categorizeItem(name) : normalizeCategory(item.category),
     completed: Boolean(item.completed),
     createdAt: typeof item.createdAt === "string" ? item.createdAt : new Date().toISOString(),
     updatedAt: typeof item.updatedAt === "string" ? item.updatedAt : new Date().toISOString()
+  };
+}
+
+function migrateStore(value) {
+  if (!value || typeof value !== "object" || !Array.isArray(value?.list?.items)) return createEmptyStore();
+  return {
+    version: STORAGE_VERSION,
+    list: { items: dedupeItems(value.list.items.map(validStoredItem).filter(Boolean)) },
+    history: Array.isArray(value.history) ? value.history.map(validHistoryEvent).filter(Boolean).slice(-500) : [],
+    preferences: value.preferences && typeof value.preferences === "object" ? value.preferences : {}
   };
 }
 
@@ -818,13 +946,17 @@ function viewFromHash(hash) {
 
 function listCatalogEstimate(items) {
   return items.reduce((totals, item) => {
-    const product = CATALOG.find(({ name }) => itemKey(name) === itemKey(item.name));
-    if (!product) return totals;
+    if (item.completed || !Number.isInteger(item.unitPricePaise)) {
+      if (!item.completed) totals.unpriced += 1;
+      return totals;
+    }
     const quantity = Number(item.quantity) || 1;
-    totals.total += (product.salePrice ?? product.price) * quantity;
-    totals.savings += Math.max(0, product.price - (product.salePrice ?? product.price)) * quantity;
+    totals.totalPaise += Math.round(item.unitPricePaise * quantity);
+    totals.priced += 1;
+    const product = CATALOG.find(({ id }) => id === item.productId);
+    if (product?.salePrice) totals.savingsPaise += Math.round((product.price - product.salePrice) * 100 * quantity);
     return totals;
-  }, { total: 0, savings: 0 });
+  }, { totalPaise: 0, savingsPaise: 0, priced: 0, unpriced: 0 });
 }
 
 function init() {
@@ -834,6 +966,8 @@ function init() {
     assistantStatus: document.querySelector("#assistant-status"),
     transcript: document.querySelector("#voice-transcript"),
     transcriptText: document.querySelector("#transcript-text"),
+    interpretedLabel: document.querySelector("#interpreted-label"),
+    interpretedText: document.querySelector("#interpreted-text"),
     commandForm: document.querySelector("#command-form"),
     commandInput: document.querySelector("#command-input"),
     language: document.querySelector("#voice-language"),
@@ -852,6 +986,7 @@ function init() {
     summary: document.querySelector("#list-summary"),
     listEstimate: document.querySelector("#list-estimate"),
     listSavings: document.querySelector("#list-savings"),
+    estimateNote: document.querySelector("#estimate-note"),
     listPageCount: document.querySelector("#list-page-count"),
     shareList: document.querySelector("#share-list"),
     downloadListImage: document.querySelector("#download-list-image"),
@@ -859,6 +994,7 @@ function init() {
     productSearch: document.querySelector("#product-search"),
     searchSummary: document.querySelector("#search-summary"),
     searchResults: document.querySelector("#search-results"),
+    searchFilters: document.querySelector("#search-filters"),
     closeSearch: document.querySelector("#close-search"),
     recommendations: document.querySelector("#recommendations"),
     historySummary: document.querySelector("#history-summary"),
@@ -874,6 +1010,12 @@ function init() {
     resetAllData: document.querySelector("#reset-all-data"),
     feedback: document.querySelector("#feedback"),
     editDialog: document.querySelector("#edit-dialog"),
+    confirmationDialog: document.querySelector("#confirmation-dialog"),
+    confirmationRaw: document.querySelector("#confirmation-raw"),
+    confirmationAction: document.querySelector("#confirmation-action"),
+    confirmAction: document.querySelector("#confirm-action"),
+    editConfirmation: document.querySelector("#edit-confirmation"),
+    cancelConfirmation: document.querySelector("#cancel-confirmation"),
     editForm: document.querySelector("#edit-form"),
     editId: document.querySelector("#edit-id"),
     editName: document.querySelector("#edit-name"),
@@ -894,6 +1036,7 @@ function init() {
   let recognitionFailed = false;
   let userCancelled = false;
   let searchState = null;
+  let conversation = { type: "idle" };
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   const canSpeak = typeof window.speechSynthesis?.speak === "function" && typeof window.SpeechSynthesisUtterance === "function";
 
@@ -925,13 +1068,16 @@ function init() {
     }
   }
 
-  function setVoiceState(state, message, transcript = "") {
+  function setVoiceState(state, message, transcript = "", interpreted = "") {
     window.clearTimeout(voiceStateTimer);
     nodes.assistantCard.dataset.voiceState = state;
     nodes.voiceStateLabel.textContent = ({ idle: "Ready", listening: "Listening", processing: "Processing", success: "Done", error: "Needs help" })[state];
     nodes.assistantStatus.textContent = message;
     nodes.transcript.hidden = !transcript;
     nodes.transcriptText.textContent = transcript;
+    nodes.interpretedLabel.hidden = !interpreted;
+    nodes.interpretedText.hidden = !interpreted;
+    nodes.interpretedText.textContent = interpreted;
     nodes.micButton.setAttribute("aria-label", state === "listening" ? "Stop listening" : "Start voice input");
     nodes.voiceNote.textContent = state === "listening" ? "Tap to stop" : SpeechRecognition ? "Tap to speak" : "Type instead";
   }
@@ -1001,15 +1147,11 @@ function init() {
     if (!saved) return createEmptyStore();
     try {
       const parsed = JSON.parse(saved);
-      if (parsed?.version !== 1 || !Array.isArray(parsed?.list?.items)) throw new Error("Unsupported storage schema");
-      const items = dedupeItems(parsed.list.items.map(validStoredItem).filter(Boolean));
-      if (items.length !== parsed.list.items.length) showFeedback("Some damaged saved items were safely skipped.", "error");
-      return {
-        version: 1,
-        list: { items },
-        history: Array.isArray(parsed.history) ? parsed.history.map(validHistoryEvent).filter(Boolean).slice(-500) : [],
-        preferences: parsed.preferences && typeof parsed.preferences === "object" ? parsed.preferences : {}
-      };
+      if (![1, STORAGE_VERSION].includes(parsed?.version) || !Array.isArray(parsed?.list?.items)) throw new Error("Unsupported storage schema");
+      const migrated = migrateStore(parsed);
+      if (migrated.list.items.length !== parsed.list.items.length) showFeedback("Some damaged saved items were safely skipped or merged.", "error");
+      if (parsed.version !== STORAGE_VERSION) localStorage.setItem(STORAGE_KEY, JSON.stringify(migrated));
+      return migrated;
     } catch {
       showFeedback("Your saved list could not be read, so Piko started a fresh one.", "error");
       return createEmptyStore();
@@ -1045,9 +1187,10 @@ function init() {
     if (event) store.history = [...store.history, event].slice(-500);
   }
 
-  function addListItem({ name, quantity, unit, category }) {
+  function addListItem({ name, quantity, unit, category, canonicalProductId, productId, brand, size, unitPricePaise }) {
     name = friendlyItemName(name);
-    const existing = store.list.items.find((item) => !item.completed && itemKey(item.name) === itemKey(name));
+    const incoming = { name, canonicalProductId: canonicalProductId ?? itemKey(name), productId, unit };
+    const existing = store.list.items.find((item) => !item.completed && sameListItem(item, incoming) && item.unit === unit);
     if (existing && existing.quantity + quantity <= MAX_QUANTITY) {
       existing.quantity = Math.round((existing.quantity + quantity) * 100) / 100;
       existing.updatedAt = new Date().toISOString();
@@ -1059,6 +1202,11 @@ function init() {
     const item = {
       id: crypto.randomUUID(),
       name,
+      canonicalProductId: incoming.canonicalProductId,
+      ...(productId ? { productId } : {}),
+      ...(brand ? { brand } : {}),
+      ...(size ? { size } : {}),
+      ...(Number.isInteger(unitPricePaise) ? { unitPricePaise } : {}),
       quantity,
       unit,
       category: category ?? categorizeItem(name),
@@ -1073,6 +1221,17 @@ function init() {
 
   function executeParsedCommand(parsed) {
     if (parsed.intent === "add") {
+      if (parsed.items.length === 1 && parsed.items[0].quantity === 1 && parsed.items[0].unit === "item") {
+        const genericId = itemKey(parsed.items[0].name);
+        const variants = productVariants(genericId);
+        if (variants.length >= 3) {
+          conversation = { type: "awaiting_variant_selection", productId: genericId, results: variants, originalRequest: parsed.items[0].name };
+          searchState = { query: parsed.items[0].name, filters: { query: parsed.items[0].name }, results: variants };
+          renderSearch();
+          nodes.productSearch.scrollIntoView({ behavior: "smooth", block: "start" });
+          return { ok: true, placeholder: true, message: `I found ${variants.length} ${parsed.items[0].name} options. Choose the first, second, cheapest, or a brand.` };
+        }
+      }
       const duplicates = [];
       const items = parsed.items.map((original) => {
         const incoming = { ...original };
@@ -1143,6 +1302,17 @@ function init() {
       return { ok: true, message: actionMessage(parsed.language, "updated", item) };
     }
 
+    if (parsed.intent === "complete") {
+      const item = findItem(parsed.name);
+      if (!item) return { ok: false, message: `I couldn't find ${parsed.name} on your list.` };
+      if (!item.completed) recordHistory(item, "completed");
+      item.completed = true;
+      item.updatedAt = new Date().toISOString();
+      saveStore();
+      render();
+      return { ok: true, message: `${item.name} marked complete.` };
+    }
+
     if (parsed.intent === "clear") {
       const count = store.list.items.length;
       if (!count) return { ok: true, message: actionMessage(parsed.language, "empty") };
@@ -1155,6 +1325,10 @@ function init() {
 
     if (parsed.intent === "search") {
       const results = searchCatalog(parsed.filters);
+      const productIds = [...new Set(results.map(({ productId }) => productId).filter(Boolean))];
+      conversation = productIds.length === 1 && results.length > 1
+        ? { type: "awaiting_variant_selection", productId: productIds[0], results, originalRequest: parsed.query, filters: parsed.filters }
+        : { type: "idle" };
       searchState = { query: parsed.query, filters: parsed.filters, results };
       renderSearch();
       setView("home");
@@ -1202,15 +1376,81 @@ function init() {
       : null;
   }
 
-  function handleCommand(rawCommand, source) {
+  let pendingConfirmation = null;
+
+  function interpretedAction(parsed) {
+    if (parsed.intent === "add") return `Add ${describeItems(parsed.items, parsed.language)}`;
+    if (parsed.intent === "clear") return "Clear the entire shopping list";
+    return parsed.intent;
+  }
+
+  function requestConfirmation(parsed, transcript, source) {
+    pendingConfirmation = { parsed, transcript, source };
+    nodes.confirmationRaw.textContent = `I heard: “${transcript}”`;
+    nodes.confirmationAction.textContent = `Interpreted as: ${interpretedAction(parsed)}`;
+    setVoiceState("processing", "Please confirm before I change your list.", transcript, interpretedAction(parsed));
+    nodes.confirmationDialog.showModal();
+  }
+
+  function handleCommand(rawCommand, source, confirmed = false) {
     const transcript = normalizeItemName(rawCommand);
     setVoiceState("processing", "✨ Got it! Let me organize that…", transcript);
+
+    const normalized = normalizeCommand(transcript);
+    if (/^(?:cancel|start again|go back|रद्द|cancel karo)$/u.test(normalized)) {
+      conversation = { type: "idle" };
+      searchState = null;
+      renderSearch();
+      setVoiceState("idle", "Cancelled. What would you like to add?", transcript);
+      return;
+    }
+    if (conversation.type === "awaiting_variant_selection") {
+      const selected = selectProductVariant(normalized, conversation.results);
+      if (selected) {
+        conversation = { type: "awaiting_quantity", selectedVariant: selected, originalRequest: conversation.originalRequest };
+        const message = `Selected ${selected.name}, ${selected.size}, ₹${catalogPrice(selected).toFixed(2)} demo price. How many packets?`;
+        setVoiceState("success", message, transcript, `Select ${selected.name}`);
+        showFeedback(message);
+        if (source === "voice") speak(message);
+        return;
+      }
+      if (!/^(?:show|find|search|add|buy|remove|delete|increase|decrease|mark|clear)\b/u.test(normalized)) {
+        const message = "Please choose an option by number, brand, or say cheapest—or say cancel.";
+        setVoiceState("error", message, transcript);
+        showFeedback(message, "error");
+        return;
+      }
+      conversation = { type: "idle" };
+    }
+    if (conversation.type === "awaiting_quantity") {
+      const amount = conversationQuantity(normalized, languageKey(nodes.language.value));
+      if (amount) {
+        const selected = conversation.selectedVariant;
+        const payload = { ...productListItem(selected), quantity: amount.quantity, unit: amount.unit ?? "pack" };
+        const item = addListItem(payload);
+        conversation = { type: "idle" };
+        saveStore();
+        render();
+        const total = Math.round(item.unitPricePaise * amount.quantity) / 100;
+        const message = `Added ${formatAmount(amount.quantity, payload.unit)} of ${item.name}. ₹${(item.unitPricePaise / 100).toFixed(2)} × ${formatNumber(amount.quantity)} = ₹${total.toFixed(2)}.`;
+        setVoiceState("success", message, transcript, `Add ${item.name}`);
+        showFeedback(message);
+        if (source === "voice") speak(message);
+        if (source === "typed") nodes.commandInput.value = "";
+        return;
+      }
+      conversation = { type: "idle" };
+    }
 
     let parsed = parseCommand(transcript, nodes.language.value);
     if (!parsed.ok) {
       setVoiceState("error", parsed.error, transcript);
       showFeedback(parsed.error, "error");
       returnVoiceToIdle();
+      return;
+    }
+    if (!confirmed && (parsed.confirmation || parsed.intent === "clear")) {
+      requestConfirmation(parsed, transcript, source);
       return;
     }
     parsed = confirmCorrections(parsed);
@@ -1225,7 +1465,7 @@ function init() {
 
     const result = executeParsedCommand(parsed);
     const message = `${result.ok ? "✓" : "!"} ${result.message}`;
-    setVoiceState(result.ok ? "success" : "error", message, transcript);
+    setVoiceState(result.ok ? "success" : "error", message, transcript, interpretedAction(parsed));
     showFeedback(result.message, result.ok ? "success" : "error");
     if (result.ok && source === "voice" && !result.placeholder) speak(result.message);
     if (result.ok && source === "typed") nodes.commandInput.value = "";
@@ -1269,6 +1509,7 @@ function init() {
     };
 
     recognition.onresult = (event) => {
+      if (commandHandled) return;
       let heard = "";
       for (let index = event.resultIndex; index < event.results.length; index += 1) {
         const words = event.results[index][0].transcript;
@@ -1276,7 +1517,7 @@ function init() {
         if (event.results[index].isFinal) finalTranscript += words;
       }
       setVoiceState("listening", "Listening… Say a shopping command.", finalTranscript || heard);
-      if (finalTranscript) {
+      if (shouldHandleFinalSpeech(commandHandled, finalTranscript)) {
         commandHandled = true;
         window.clearTimeout(recognitionTimer);
         recognition.stop();
@@ -1370,7 +1611,20 @@ function init() {
   function renderSearch() {
     nodes.productSearch.hidden = !searchState;
     if (!searchState) return;
-    const { query, results } = searchState;
+    const { query, results, filters } = searchState;
+    const labels = {
+      brand: (value) => `Brand: ${value}`, category: (value) => value,
+      minPrice: (value) => `From ₹${formatNumber(value)}`, maxPrice: (value) => `Up to ₹${formatNumber(value)}`,
+      size: (value) => `Size: ${value}`, exactSize: (value) => value,
+      attributes: (value) => value.join(", "), availableOnly: () => "Available"
+    };
+    nodes.searchFilters.replaceChildren(...Object.entries(filters).filter(([key]) => key !== "query").map(([key, value]) => {
+      const button = element("button", "filter-chip", `${labels[key]?.(value) ?? value} ×`);
+      button.type = "button";
+      button.dataset.filter = key;
+      button.setAttribute("aria-label", `Remove ${labels[key]?.(value) ?? value} filter`);
+      return button;
+    }));
     nodes.searchSummary.textContent = results.length
       ? `${results.length} demonstration product${results.length === 1 ? "" : "s"} for “${query}”.`
       : `No demonstration products matched “${query}”.`;
@@ -1410,7 +1664,14 @@ function init() {
     top.append(name, actions);
 
     const bottom = element("div", "item-bottom");
-    bottom.append(element("span", "item-amount", formatAmount(item.quantity, item.unit)));
+    const details = element("div", "item-details");
+    details.append(element("span", "item-amount", formatAmount(item.quantity, item.unit)));
+    if (Number.isInteger(item.unitPricePaise)) {
+      details.append(element("small", "item-price", `${item.brand ? `${item.brand} • ` : ""}${item.size ?? ""} ₹${(item.unitPricePaise / 100).toFixed(2)} × ${formatNumber(item.quantity)} = ₹${(Math.round(item.unitPricePaise * item.quantity) / 100).toFixed(2)}`));
+    } else {
+      details.append(element("small", "item-price", "Price not selected • excluded from estimate"));
+    }
+    bottom.append(details);
 
     const quantity = element("div", "quantity-control");
     quantity.setAttribute("aria-label", `Quantity for ${item.name}`);
@@ -1493,8 +1754,9 @@ function init() {
     const estimate = listCatalogEstimate(items);
     nodes.summary.textContent = `${items.length} ${items.length === 1 ? "item" : "items"}${completed ? ` • ${completed} checked` : ""}`;
     nodes.listPageCount.textContent = `${items.length} ${items.length === 1 ? "item" : "items"}`;
-    nodes.listEstimate.textContent = `₹${estimate.total.toFixed(2)}`;
-    nodes.listSavings.textContent = `₹${estimate.savings.toFixed(2)}`;
+    nodes.listEstimate.textContent = `₹${(estimate.totalPaise / 100).toFixed(2)}`;
+    nodes.listSavings.textContent = `₹${(estimate.savingsPaise / 100).toFixed(2)}`;
+    nodes.estimateNote.textContent = `Estimated total for ${estimate.priced} priced active item${estimate.priced === 1 ? "" : "s"}.${estimate.unpriced ? ` ${estimate.unpriced} generic item${estimate.unpriced === 1 ? " is" : "s are"} not included.` : ""}`;
     nodes.shareList.disabled = items.length === 0;
     nodes.downloadListImage.disabled = items.length === 0;
     nodes.clearCompleted.hidden = completed === 0;
@@ -1735,6 +1997,14 @@ function init() {
     commit(`Added ${item.name} from the demonstration catalog.`);
   });
 
+  nodes.searchFilters.addEventListener("click", (event) => {
+    const button = event.target.closest("button[data-filter]");
+    if (!button || !searchState) return;
+    delete searchState.filters[button.dataset.filter];
+    searchState.results = searchCatalog(searchState.filters);
+    renderSearch();
+  });
+
   nodes.closeSearch.addEventListener("click", () => {
     searchState = null;
     renderSearch();
@@ -1793,6 +2063,27 @@ function init() {
       recognition.stop();
     }
     handleCommand(nodes.commandInput.value, "typed");
+  });
+
+  nodes.confirmAction.addEventListener("click", () => {
+    if (!pendingConfirmation) return;
+    const pending = pendingConfirmation;
+    pendingConfirmation = null;
+    nodes.confirmationDialog.close();
+    handleCommand(pending.transcript, pending.source, true);
+  });
+  nodes.editConfirmation.addEventListener("click", () => {
+    const pending = pendingConfirmation;
+    pendingConfirmation = null;
+    nodes.confirmationDialog.close();
+    nodes.commandInput.value = pending?.parsed.confirmation?.suggested ?? pending?.transcript ?? "";
+    nodes.commandInput.focus();
+    setVoiceState("idle", "Edit the command, then send it again.", pending?.transcript ?? "");
+  });
+  nodes.cancelConfirmation.addEventListener("click", () => {
+    pendingConfirmation = null;
+    nodes.confirmationDialog.close();
+    setVoiceState("idle", "Cancelled. Your list was not changed.");
   });
 
   nodes.micButton.addEventListener("click", () => {

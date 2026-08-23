@@ -14,8 +14,8 @@
     >
     <title>Piko - Your shopping companion</title>
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Ctext y='.9em' font-size='90'%3E🛒%3C/text%3E%3C/svg%3E">
-    <link rel="stylesheet" href="styles.css?v=20260823-pages">
-    <script type="module" src="app.js?v=20260823-10"></script>
+    <link rel="stylesheet" href="styles.css?v=20260823-hardening">
+    <script type="module" src="app.js?v=20260823-hardening"></script>
   </head>
   <body data-app-state="loading" data-view="home">
     <div class="ambient ambient-one" aria-hidden="true"></div>
@@ -56,6 +56,8 @@
           <div id="voice-transcript" class="voice-transcript" hidden>
             <span>I heard</span>
             <q id="transcript-text"></q>
+            <span id="interpreted-label" hidden>Interpreted as</span>
+            <strong id="interpreted-text" hidden></strong>
           </div>
 
           <form id="command-form" class="command-form" novalidate>
@@ -97,6 +99,7 @@
           <span>Total estimate</span>
           <strong id="list-estimate">₹0</strong>
           <small id="list-page-count">0 items</small>
+          <small id="estimate-note">No priced active items</small>
           <em>Demonstration catalog estimate</em>
         </div>
         <div class="savings-card">
@@ -216,6 +219,7 @@
           <button id="close-search" class="text-button" type="button">Close results</button>
         </div>
         <p class="catalog-note">Prices are in Indian rupees (₹). Prices, sales, availability, and product details are demonstration data—not live retailer information.</p>
+        <div id="search-filters" class="filter-chips" aria-label="Active search filters"></div>
         <div id="search-results" class="product-grid"></div>
       </section>
 
@@ -309,6 +313,21 @@
         <div class="dialog-actions">
           <button id="cancel-edit" class="secondary-button" type="button">Cancel</button>
           <button class="primary-button" type="submit">Save changes</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="confirmation-dialog" class="edit-dialog" aria-labelledby="confirmation-title">
+      <form method="dialog">
+        <div class="dialog-heading">
+          <div><p class="eyebrow">Please confirm</p><h2 id="confirmation-title">Did you mean this?</h2></div>
+        </div>
+        <p id="confirmation-raw" class="confirmation-raw"></p>
+        <p id="confirmation-action" class="confirmation-action"></p>
+        <div class="dialog-actions">
+          <button id="cancel-confirmation" class="text-button" value="cancel">Cancel</button>
+          <button id="edit-confirmation" class="secondary-button" value="edit">Edit</button>
+          <button id="confirm-action" class="primary-button" value="confirm">Confirm</button>
         </div>
       </form>
     </dialog>
